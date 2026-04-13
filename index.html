@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio Kevin | UPLA 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="auth-section" class="auth-overlay">
+        <div class="auth-card shadow-lg">
+            <div class="auth-header">
+                <i class="fa-solid fa-layer-group mb-2"></i>
+                <h2 class="fw-bold m-0" id="auth-title">Portafolio Kevin</h2>
+                <p class="small opacity-75">Sistemas y Base de Datos II</p>
+            </div>
+            <div class="p-4">
+                <div class="form-floating mb-3">
+                    <input type="text" id="user" class="form-control custom-input" placeholder="User">
+                    <label>Usuario</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="password" id="pass" class="form-control custom-input" placeholder="Pass">
+                    <label>Contraseña</label>
+                </div>
+
+                <div id="reg-fields" class="d-none">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="full-name" class="form-control custom-input" placeholder="Nombre">
+                        <label>Nombre Completo</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-white-50 small mb-1">Tipo de Cuenta:</label>
+                        <select id="reg-role" class="form-select custom-input">
+                            <option value="VISUALIZADOR">Visualizador (Invitado)</option>
+                            <option value="ADMIN">Administrador (Control Total)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="ejecutarAccion()" id="main-btn" class="btn btn-primary-glow w-100 py-3 mb-3">INGRESAR</button>
+                <div class="text-center">
+                    <button type="button" onclick="toggleAuth()" id="btn-toggle" class="btn btn-link text-info text-decoration-none small">¿No tienes cuenta? Regístrate aquí</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="portfolio-section" class="d-none">
+        <nav class="navbar navbar-dark bg-glass sticky-top px-4">
+            <span class="navbar-brand fw-bold">KEVIN <span class="text-info">PORTFOLIO</span></span>
+            <div class="d-flex align-items-center">
+                <div class="user-profile-nav me-3" onclick="verPerfil()">
+                    <img id="nav-avatar" src="https://ui-avatars.com/api/?name=K&background=0DCAF0&color=fff">
+                    <span id="nav-username" class="text-white d-none d-md-inline"></span>
+                </div>
+                <button onclick="logout()" class="btn btn-outline-danger btn-sm rounded-pill px-3">SALIR</button>
+            </div>
+        </nav>
+
+        <div class="container-fluid py-5">
+            <div id="admin-panel" class="container mb-5 d-none">
+                <div class="card admin-card border-info text-white p-4">
+                    <h5 class="fw-bold mb-3 text-info"><i class="fa-solid fa-file-arrow-up me-2"></i> Subir Trabajo desde este Dispositivo</h5>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <input type="text" id="t-titulo" class="form-control custom-input" placeholder="Título del Trabajo">
+                        </div>
+                        <div class="col-md-2">
+                            <select id="t-unidad" class="form-select custom-input">
+                                <option value="1">Unidad 1</option>
+                                <option value="2">Unidad 2</option>
+                                <option value="3">Unidad 3</option>
+                                <option value="4">Unidad 4</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="file" id="t-file" class="form-control custom-input">
+                        </div>
+                        <div class="col-md-2">
+                            <button onclick="guardarArchivoLocal()" class="btn btn-info w-100 fw-bold">GUARDAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row gx-4 justify-content-center px-4">
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="unit-box" onclick="filtrarUnidad(1)">
+                        <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKSjPQC1Q7UsC88/giphy.gif"></div>
+                        <div class="box-number">01</div>
+                        <div class="box-content"><h3>UNIDAD 1</h3><p id="cnt-1">0 Archivos</p></div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="unit-box" onclick="filtrarUnidad(2)">
+                        <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/qgQUggAC3Pfv687qPC/giphy.gif"></div>
+                        <div class="box-number">02</div>
+                        <div class="box-content"><h3>UNIDAD 2</h3><p id="cnt-2">0 Archivos</p></div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="unit-box" onclick="filtrarUnidad(3)">
+                        <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/Lndtxw3ztLhNC/giphy.gif"></div>
+                        <div class="box-number">03</div>
+                        <div class="box-content"><h3>UNIDAD 3</h3><p id="cnt-3">0 Archivos</p></div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="unit-box" onclick="filtrarUnidad(4)">
+                        <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26n6WywJyh39n1pBu/giphy.gif"></div>
+                        <div class="box-number">04</div>
+                        <div class="box-content"><h3>UNIDAD 4</h3><p id="cnt-4">0 Archivos</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container mt-4">
+                <div class="card bg-dark text-white border-0 shadow">
+                    <div class="card-header bg-transparent text-info fw-bold d-flex justify-content-between align-items-center">
+                        <span id="titulo-tabla">TODOS LOS ARCHIVOS</span>
+                        <button class="btn btn-sm btn-outline-info" onclick="cargarTabla()">Ver Todo</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-dark table-hover m-0 align-middle">
+                            <thead>
+                                <tr><th>Documento</th><th>Acciones</th><th id="th-admin" class="d-none">Admin</th></tr>
+                            </thead>
+                            <tbody id="lista-archivos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-perfil" class="modal-overlay d-none">
+        <div class="profile-card text-center text-white">
+            <button class="close-btn" onclick="cerrarPerfil()">&times;</button>
+            <div class="avatar-edit">
+                <img id="p-img" src="https://ui-avatars.com/api/?name=U" alt="Perfil">
+                <label for="f-foto" class="cam-icon"><i class="fa fa-camera"></i></label>
+                <input type="file" id="f-foto" class="d-none" onchange="cambiarFoto(event)">
+            </div>
+            <h4 id="p-nombre" class="mt-3 fw-bold">Nombre</h4>
+            <span id="p-rol" class="badge bg-info text-dark">Rol</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
