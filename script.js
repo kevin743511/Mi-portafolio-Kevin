@@ -1,7 +1,8 @@
 let isLogin = true;
-let userLogueado = null;
+let currentUser = null;
+let activeUnit = null;
 
-// CAMBIAR ENTRE LOGIN Y REGISTRO
+// --- GESTIÓN DE ACCESO ---
 function toggleAuth() {
     isLogin = !isLogin;
     const regFields = document.getElementById('reg-fields');
@@ -10,177 +11,150 @@ function toggleAuth() {
     const toggleBtn = document.getElementById('btn-toggle');
 
     if (!isLogin) {
-        authTitle.innerText = "Nueva Cuenta";
-        mainBtn.innerText = "REGISTRARME";
+        authTitle.innerText = "NUEVO REGISTRO";
+        mainBtn.innerText = "CREAR MI CUENTA";
         regFields.classList.remove('d-none');
-        toggleBtn.innerText = "¿Ya tienes cuenta? Inicia sesión";
+        toggleBtn.innerText = "¿Ya tienes cuenta? Ingresa aquí";
     } else {
-        authTitle.innerText = "Portafolio Kevin";
-        mainBtn.innerText = "INGRESAR";
+        authTitle.innerText = "Kevin Portfolio";
+        mainBtn.innerText = "INGRESAR AL SISTEMA";
         regFields.classList.add('d-none');
-        toggleBtn.innerText = "¿No tienes cuenta? Regístrate";
+        toggleBtn.innerText = "¿No tienes cuenta? Regístrate aquí";
     }
 }
 
-// LOGIN Y REGISTRO (CON VALIDACIÓN DE ADMIN ÚNICO)
 function ejecutarAccion() {
     const user = document.getElementById('user').value.trim();
     const pass = document.getElementById('pass').value.trim();
-    const db = JSON.parse(localStorage.getItem('kevin_users')) || [];
+    const db = JSON.parse(localStorage.getItem('kevin_final_users')) || [];
 
-    if (!user || !pass) return alert("Completa los campos.");
+    if (!user || !pass) return alert("Por favor, llena los campos.");
 
     if (isLogin) {
-        const u = db.find(x => x.user === user && x.pass === pass);
-        if (u) iniciarSesion(u);
-        else alert("Acceso denegado.");
+        // LOGIN
+        const found = db.find(u => u.user === user && u.pass === pass);
+        if (found) {
+            loginExitoso(found);
+        } else {
+            alert("Usuario o clave incorrectos.");
+        }
     } else {
+        // REGISTRO
         const nombre = document.getElementById('full-name').value.trim();
         const rol = document.getElementById('reg-role').value;
 
-        if (!nombre) return alert("Falta el nombre.");
-        if (rol === "ADMIN" && db.some(x => x.rol === "ADMIN")) {
-            return alert("Ya existe un administrador en el sistema.");
+        if (!nombre) return alert("Ingresa tu nombre completo.");
+        
+        // Validación ADMIN Único
+        if (rol === "ADMIN" && db.some(u => u.rol === "ADMIN")) {
+            return alert("Ya existe un Administrador. Registrate como Visualizador.");
         }
-        if (db.some(x => x.user === user)) return alert("El usuario ya existe.");
+
+        // Evitar duplicados
+        if (db.some(u => u.user === user)) return alert("Este usuario ya existe.");
 
         db.push({ user, pass, nombre, rol });
-        localStorage.setItem('kevin_users', JSON.stringify(db));
-        alert("¡Registro exitoso!");
+        localStorage.setItem('kevin_final_users', JSON.stringify(db));
+        alert("¡Cuenta creada! Ahora inicia sesión.");
         toggleAuth();
     }
 }
 
-function iniciarSesion(datos) {
-    userLogueado = datos;
+function loginExitoso(u) {
+    currentUser = u;
     document.getElementById('auth-section').classList.add('d-none');
     document.getElementById('portfolio-section').classList.remove('d-none');
-    
-    document.getElementById('nav-username').innerText = datos.nombre;
-    document.getElementById('p-nombre').innerText = datos.nombre;
-    document.getElementById('p-rol').innerText = datos.rol;
-
-    if (datos.rol === "ADMIN") {
-        document.getElementById('admin-panel').classList.remove('d-none');
-        document.getElementById('th-admin').classList.remove('d-none');
-    }
-
-    const foto = localStorage.getItem('foto_' + datos.user);
-    if (foto) {
-        document.getElementById('nav-avatar').src = foto;
-        document.getElementById('p-img').src = foto;
-    }
-    
-    actualizarCards();
-    cargarTabla();
+    document.getElementById('nav-username').innerText = u.nombre;
+    actualizarContadores();
 }
 
-// GUARDAR ARCHIVO DE LA PC
-function guardarArchivoLocal() {
-    const titulo = document.getElementById('t-titulo').value.trim();
-    const unidad = document.getElementById('t-unidad').value;
-    const fileInput = document.getElementById('t-file');
-    const file = fileInput.files[0];
+// --- GESTIÓN DE ARCHIVOS ---
+function abrirUnidad(u) {
+    activeUnit = u;
+    document.getElementById('modal-unit-title').innerText = "ARCHIVOS UNIDAD " + u;
+    document.getElementById('unit-modal').classList.remove('d-none');
+    
+    const adminZone = document.getElementById('admin-zone');
+    if (currentUser.rol === "ADMIN") adminZone.classList.remove('d-none');
+    else adminZone.classList.add('d-none');
 
-    if (!titulo || !file) return alert("Título y archivo requeridos.");
+    actualizarLista();
+}
+
+function guardarArchivo() {
+    const title = document.getElementById('file-title').value.trim();
+    const input = document.getElementById('file-input');
+    const file = input.files[0];
+
+    if (!title || !file) return alert("Selecciona un archivo y dale un título.");
 
     const reader = new FileReader();
     reader.onload = function() {
-        const filesDB = JSON.parse(localStorage.getItem('kevin_files')) || [];
-        filesDB.push({
+        const db = JSON.parse(localStorage.getItem('kevin_final_files')) || [];
+        db.push({
             id: Date.now(),
-            titulo: titulo,
-            unidad: unidad,
+            unidad: activeUnit,
+            titulo: title,
             nombreArc: file.name,
-            tipo: file.type,
-            binario: reader.result // Base64
+            data: reader.result
         });
-        localStorage.setItem('kevin_files', JSON.stringify(filesDB));
-        alert("¡Guardado en Unidad " + unidad + "!");
+        localStorage.setItem('kevin_final_files', JSON.stringify(db));
         
-        fileInput.value = "";
-        document.getElementById('t-titulo').value = "";
-        actualizarCards();
-        cargarTabla(unidad);
+        document.getElementById('file-title').value = "";
+        input.value = "";
+        actualizarLista();
+        actualizarContadores();
     };
     reader.readAsDataURL(file);
 }
 
-// TABLA Y FILTROS
-function cargarTabla(filtro = null) {
-    const files = JSON.parse(localStorage.getItem('kevin_files')) || [];
-    const lista = document.getElementById('lista-archivos');
-    const titulo = document.getElementById('titulo-tabla');
-    lista.innerHTML = "";
+function actualizarLista() {
+    const db = JSON.parse(localStorage.getItem('kevin_final_files')) || [];
+    const filtrados = db.filter(f => f.unidad == activeUnit);
+    const body = document.getElementById('unit-files-body');
+    body.innerHTML = "";
 
-    titulo.innerText = filtro ? "ARCHIVOS: UNIDAD " + filtro : "TODOS LOS TRABAJOS";
-    const data = filtro ? files.filter(x => x.unidad == filtro) : files;
+    if (filtrados.length === 0) {
+        body.innerHTML = '<tr><td class="text-center text-white-50">Carpeta vacía</td></tr>';
+        return;
+    }
 
-    data.forEach(f => {
-        lista.innerHTML += `
+    filtrados.forEach(f => {
+        body.innerHTML += `
             <tr>
-                <td>
-                    <div class="fw-bold">${f.titulo}</div>
-                    <small class="text-white-50">${f.nombreArc}</small>
+                <td><span class="text-info">●</span> ${f.titulo} <br><small class="opacity-50">${f.nombreArc}</small></td>
+                <td class="text-end">
+                    <button onclick="descargar(${f.id})" class="btn btn-sm btn-success"><i class="fa fa-download"></i></button>
+                    ${currentUser.rol === 'ADMIN' ? `<button onclick="eliminar(${f.id})" class="btn btn-sm btn-danger ms-1"><i class="fa fa-trash"></i></button>` : ""}
                 </td>
-                <td>
-                    <button onclick="descargar(${f.id})" class="btn btn-sm btn-success me-1"><i class="fa fa-download"></i></button>
-                    <button onclick="ver(${f.id})" class="btn btn-sm btn-info"><i class="fa fa-eye"></i></button>
-                </td>
-                ${userLogueado.rol === 'ADMIN' ? `<td><button onclick="eliminar(${f.id})" class="btn btn-sm btn-danger">X</button></td>` : ""}
             </tr>`;
     });
 }
 
 function descargar(id) {
-    const files = JSON.parse(localStorage.getItem('kevin_files'));
-    const f = files.find(x => x.id === id);
+    const db = JSON.parse(localStorage.getItem('kevin_final_files'));
+    const f = db.find(x => x.id === id);
     const a = document.createElement('a');
-    a.href = f.binario;
-    a.download = f.nombreArc;
+    a.href = f.data; a.download = f.nombreArc;
     a.click();
 }
 
-function ver(id) {
-    const files = JSON.parse(localStorage.getItem('kevin_files'));
-    const f = files.find(x => x.id === id);
-    const frame = `<iframe src="${f.binario}" width="100%" height="100%" style="border:none;"></iframe>`;
-    const x = window.open();
-    x.document.open();
-    x.document.write(`<html><body style="margin:0; height:100vh;">${frame}</body></html>`);
-    x.document.close();
+function eliminar(id) {
+    if(!confirm("¿Eliminar archivo?")) return;
+    let db = JSON.parse(localStorage.getItem('kevin_final_files'));
+    db = db.filter(x => x.id !== id);
+    localStorage.setItem('kevin_final_files', JSON.stringify(db));
+    actualizarLista();
+    actualizarContadores();
 }
 
-function filtrarUnidad(u) { cargarTabla(u); }
-
-function actualizarCards() {
-    const files = JSON.parse(localStorage.getItem('kevin_files')) || [];
+function actualizarContadores() {
+    const files = JSON.parse(localStorage.getItem('kevin_final_files')) || [];
     for(let i=1; i<=4; i++) {
         const total = files.filter(x => x.unidad == i).length;
         document.getElementById('cnt-' + i).innerText = total + " Archivos";
     }
 }
 
-function eliminar(id) {
-    if(!confirm("¿Eliminar archivo?")) return;
-    let files = JSON.parse(localStorage.getItem('kevin_files'));
-    files = files.filter(x => x.id !== id);
-    localStorage.setItem('kevin_files', JSON.stringify(files));
-    actualizarCards();
-    cargarTabla();
-}
-
-// PERFIL
-function cambiarFoto(e) {
-    const reader = new FileReader();
-    reader.onload = function() {
-        document.getElementById('p-img').src = reader.result;
-        document.getElementById('nav-avatar').src = reader.result;
-        localStorage.setItem('foto_' + userLogueado.user, reader.result);
-    };
-    reader.readAsDataURL(e.target.files[0]);
-}
-
-function verPerfil() { document.getElementById('modal-perfil').classList.remove('d-none'); }
-function cerrarPerfil() { document.getElementById('modal-perfil').classList.add('d-none'); }
+function cerrarUnidad() { document.getElementById('unit-modal').classList.add('d-none'); }
 function logout() { location.reload(); }
