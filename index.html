@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PORTAFOLIO KEVIN | UPLA 2026</title>
+    <title>SISTEMA PORTAFOLIO | KEVIN UPLA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -14,9 +14,9 @@
     <div id="auth-section" class="auth-overlay">
         <div class="auth-card" data-aos="zoom-in">
             <div class="auth-header text-center">
-                <i class="fa-solid fa-code-branch mb-2"></i>
-                <h2 class="fw-bold m-0" id="auth-title">Kevin Portfolio</h2>
-                <p class="small opacity-75">Base de Datos II</p>
+                <i class="fa-solid fa-terminal mb-2"></i>
+                <h2 class="fw-bold m-0" id="auth-title">Kevin System</h2>
+                <small class="opacity-75">Base de Datos II - UPLA</small>
             </div>
             <div class="p-4">
                 <div class="form-floating mb-3">
@@ -27,24 +27,22 @@
                     <input type="password" id="pass" class="form-control custom-input" placeholder="Pass">
                     <label>Contraseña</label>
                 </div>
-
                 <div id="reg-fields" class="d-none">
                     <div class="form-floating mb-3">
                         <input type="text" id="full-name" class="form-control custom-input" placeholder="Nombre">
                         <label>Nombre Completo</label>
                     </div>
                     <div class="mb-3">
-                        <label class="text-white-50 small">Tipo de Acceso:</label>
+                        <label class="text-white-50 small mb-1">Rol en el Sistema:</label>
                         <select id="reg-role" class="form-select custom-input">
-                            <option value="VISUALIZADOR">Visualizador (Invitado)</option>
+                            <option value="VISUALIZADOR">Visualizador</option>
                             <option value="ADMIN">Administrador (Kevin)</option>
                         </select>
                     </div>
                 </div>
-                
-                <button onclick="ejecutarAccion()" id="main-btn" class="btn btn-primary-glow w-100 py-3 mb-3">INGRESAR AL SISTEMA</button>
+                <button onclick="ejecutarAccion()" id="main-btn" class="btn btn-primary-glow w-100 py-3 mb-3">ACCEDER AL NÚCLEO</button>
                 <div class="text-center">
-                    <button type="button" onclick="toggleAuth()" id="btn-toggle" class="btn btn-link text-info text-decoration-none small">¿No tienes cuenta? Regístrate aquí</button>
+                    <button type="button" onclick="toggleAuth()" id="btn-toggle" class="btn btn-link text-info text-decoration-none small">¿No tienes cuenta? Crea una aquí</button>
                 </div>
             </div>
         </div>
@@ -52,45 +50,41 @@
 
     <div id="portfolio-section" class="d-none">
         <nav class="navbar navbar-dark bg-glass sticky-top px-4 shadow-lg">
-            <span class="navbar-brand fw-bold">KEVIN <span class="text-info">SYSTEM</span></span>
+            <span class="navbar-brand fw-bold text-info"><i class="fa fa-database me-2"></i>KEVIN <span class="text-white">PORTFOLIO</span></span>
             <div class="d-flex align-items-center">
-                <div class="user-profile-nav me-3" onclick="verPerfil()">
-                    <img id="nav-avatar" src="https://ui-avatars.com/api/?name=K&background=0DCAF0&color=fff">
-                    <span id="nav-username" class="text-white ms-2"></span>
-                </div>
+                <div id="nav-username" class="text-white me-3 fw-bold"></div>
                 <button onclick="logout()" class="btn btn-outline-danger btn-sm rounded-pill px-3">SALIR</button>
             </div>
         </nav>
 
-        <div class="container py-5">
+        <div class="container-fluid py-5 px-5">
             <div class="row gx-4 justify-content-center">
                 <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="unit-box vertical" onclick="abrirUnidad(1)">
+                    <div class="unit-box" onclick="abrirUnidad(1)">
                         <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKSjPQC1Q7UsC88/giphy.gif"></div>
                         <div class="box-number">01</div>
-                        <div class="box-content"><h3>UNIDAD 1</h3><p id="cnt-1">0 Archivos</p></div>
+                        <div class="box-content"><h3>UNIDAD 1</h3><span id="cnt-1" class="badge-count">0 Archivos</span></div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="unit-box vertical" onclick="abrirUnidad(2)">
+                    <div class="unit-box" onclick="abrirUnidad(2)">
                         <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/qgQUggAC3Pfv687qPC/giphy.gif"></div>
                         <div class="box-number">02</div>
-                        <div class="box-content"><h3>UNIDAD 2</h3><p id="cnt-2">0 Archivos</p></div>
+                        <div class="box-content"><h3>UNIDAD 2</h3><span id="cnt-2" class="badge-count">0 Archivos</span></div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="unit-box vertical" onclick="abrirUnidad(3)">
+                    <div class="unit-box" onclick="abrirUnidad(3)">
                         <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/Lndtxw3ztLhNC/giphy.gif"></div>
                         <div class="box-number">03</div>
-                        <div class="box-number">03</div>
-                        <div class="box-content"><h3>UNIDAD 3</h3><p id="cnt-3">0 Archivos</p></div>
+                        <div class="box-content"><h3>UNIDAD 3</h3><span id="cnt-3" class="badge-count">0 Archivos</span></div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
-                    <div class="unit-box vertical" onclick="abrirUnidad(4)">
-                        <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26n6WywJyh39n1pBu/giphy.gif"></div>
+                    <div class="unit-box" onclick="abrirUnidad(4)">
+                        <div class="gif-overlay"><img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26n6WywJyh39n1pBu/giphy.gif"></div>
                         <div class="box-number">04</div>
-                        <div class="box-content"><h3>UNIDAD 4</h3><p id="cnt-4">0 Archivos</p></div>
+                        <div class="box-content"><h3>UNIDAD 4</h3><span id="cnt-4" class="badge-count">0 Archivos</span></div>
                     </div>
                 </div>
             </div>
@@ -99,23 +93,37 @@
 
     <div id="unit-modal" class="modal-overlay d-none">
         <div class="unit-manager-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="modal-inner-header d-flex justify-content-between align-items-center mb-4">
                 <h3 class="text-info fw-bold m-0" id="modal-unit-title">UNIDAD</h3>
                 <button class="btn-close btn-close-white" onclick="cerrarUnidad()"></button>
             </div>
-            <div id="admin-zone" class="mb-4 d-none">
-                <div class="p-3 bg-dark rounded border border-secondary">
-                    <input type="text" id="file-title" class="form-control custom-input mb-2" placeholder="Título del trabajo">
-                    <div class="input-group">
-                        <input type="file" id="file-input" class="form-control custom-input">
-                        <button onclick="guardarArchivo()" class="btn btn-info fw-bold">SUBIR</button>
+
+            <div class="week-nav mb-4">
+                <button class="btn-week" onclick="seleccionarSemana(1)">Semana 01</button>
+                <button class="btn-week" onclick="seleccionarSemana(2)">Semana 02</button>
+                <button class="btn-week" onclick="seleccionarSemana(3)">Semana 03</button>
+                <button class="btn-week" onclick="seleccionarSemana(4)">Semana 04</button>
+            </div>
+
+            <div id="week-content" class="d-none">
+                <div id="admin-zone" class="admin-panel d-none mb-4">
+                    <div class="row g-2">
+                        <div class="col-12"><input type="text" id="file-title" class="form-control custom-input" placeholder="Título del Trabajo Académico"></div>
+                        <div class="col-md-9"><input type="file" id="file-input" class="form-control custom-input"></div>
+                        <div class="col-md-3"><button onclick="guardarArchivo()" class="btn btn-info w-100 fw-bold">GUARDAR</button></div>
                     </div>
                 </div>
+
+                <div class="file-table-container">
+                    <table class="table table-dark table-hover mb-0">
+                        <tbody id="unit-files-body"></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="table-responsive" style="max-height: 300px;">
-                <table class="table table-dark table-hover">
-                    <tbody id="unit-files-body"></tbody>
-                </table>
+
+            <div id="select-prompt" class="text-center py-5">
+                <i class="fa-solid fa-folder-tree fa-3x text-info opacity-25 mb-3"></i>
+                <p class="text-white-50">Selecciona una de las 4 semanas para gestionar tus archivos.</p>
             </div>
         </div>
     </div>
