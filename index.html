@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OS.ARCANA - DRAGON PORTAL</title>
+    <title>OS.ARCANA - UPLA DRAGON EDITION</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="loader"><span>CANALIZANDO ENERGÍA...</span></div>
+    <div id="loader"><span>CANALIZANDO NEXO...</span></div>
+    
     <div class="void-dome"></div>
+    <div class="fire-overlay"></div>
     <canvas id="canvas-particles"></canvas>
 
     <div id="auth-section" class="container">
-        <div class="dragon-frame">
-            <h1 class="arcana-title">OS.ARCANA</h1>
-            <div class="auth-box fire-border">
+        <div class="dragon-gate">
+            <h1 class="arcana-title glitch" data-text="OS.ARCANA">OS.ARCANA</h1>
+            <div class="auth-box fire-animated-border">
                 <div id="reg-fields" class="d-none">
                     <input type="text" id="full-name" placeholder="NOMBRE DEL HÉROE">
                     <select id="reg-role">
@@ -23,49 +25,49 @@
                         <option value="ADMIN">ELDER WARDEN</option>
                     </select>
                 </div>
-                <div class="input-glow">
+                <div class="input-vault">
                     <input type="text" id="user" placeholder="USUARIO">
                     <input type="password" id="pass" placeholder="PASSWORD">
                 </div>
-                <button id="main-btn" onclick="ejecutarAccion()">INVOCAR NÚCLEO</button>
-                <p onclick="toggleAuth()" class="auth-link">¿CAMBIAR PROTOCOLO DE ACCESO?</p>
+                <button id="main-btn" onclick="ejecutarAccion()">INVOCAR PODER</button>
+                <p onclick="toggleAuth()" class="auth-toggle">INTERCAMBIAR PROTOCOLO</p>
             </div>
         </div>
     </div>
 
     <div id="portfolio-section" class="container d-none">
         <nav class="void-nav">
-            <div class="user-status">
-                <div class="status-orb"></div>
+            <div class="hero-info">
+                <div class="status-light"></div>
                 <div>
                     <span id="nav-username">KEVIN</span><br>
-                    <small id="nav-role">ADMIN</small>
+                    <small id="nav-role">ADMINISTRADOR</small>
                 </div>
             </div>
-            <button class="btn-exit" onclick="logout()"><i class="fa fa-power-off"></i></button>
+            <button class="btn-logout" onclick="logout()"><i class="fa fa-power-off"></i></button>
         </nav>
 
-        <div class="grid-modules">
-            <div class="module-card portal-dragon" onclick="abrirPortal(1)">
-                <div class="orb"><span>MOD_1</span></div>
+        <div class="grid-units">
+            <div class="unit-card portal" onclick="abrirPortal(1)">
+                <div class="chrono-sphere sphere-blue"><span>MOD_1</span></div>
                 <h3>UNIDAD I</h3>
                 <p id="cnt-1">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-1" class="mana-fill"></div></div>
             </div>
-            <div class="module-card portal-dragon purple-flame" onclick="abrirPortal(2)">
-                <div class="orb"><span>MOD_2</span></div>
+            <div class="unit-card portal" onclick="abrirPortal(2)">
+                <div class="chrono-sphere sphere-purple"><span>MOD_2</span></div>
                 <h3>UNIDAD II</h3>
                 <p id="cnt-2">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-2" class="mana-fill"></div></div>
             </div>
-            <div class="module-card portal-dragon green-flame" onclick="abrirPortal(3)">
-                <div class="orb"><span>MOD_3</span></div>
+            <div class="unit-card portal" onclick="abrirPortal(3)">
+                <div class="chrono-sphere sphere-green"><span>MOD_3</span></div>
                 <h3>UNIDAD III</h3>
                 <p id="cnt-3">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-3" class="mana-fill"></div></div>
             </div>
-            <div class="module-card portal-dragon red-flame" onclick="abrirPortal(4)">
-                <div class="orb"><span>MOD_4</span></div>
+            <div class="unit-card portal" onclick="abrirPortal(4)">
+                <div class="chrono-sphere sphere-red"><span>MOD_4</span></div>
                 <h3>UNIDAD IV</h3>
                 <p id="cnt-4">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-4" class="mana-fill"></div></div>
@@ -73,22 +75,22 @@
         </div>
 
         <div id="vault-modal" class="modal d-none">
-            <div class="modal-content chrono-effect">
+            <div class="modal-content chrono-view">
                 <div class="modal-header">
                     <h2 id="modal-title">FRAGMENTOS</h2>
-                    <button onclick="cerrarPortal()" class="close-vault">&times;</button>
+                    <button onclick="cerrarPortal()" class="close-btn">&times;</button>
                 </div>
-                <div class="week-selector">
-                    <button class="w-btn active" id="w1" onclick="setWeek(1)">SEMANA 1</button>
-                    <button class="w-btn" id="w2" onclick="setWeek(2)">SEMANA 2</button>
-                    <button class="w-btn" id="w3" onclick="setWeek(3)">SEMANA 3</button>
-                    <button class="w-btn" id="w4" onclick="setWeek(4)">SEMANA 4</button>
+                <div class="weeks-nav">
+                    <button class="w-btn active" id="w1" onclick="setWeek(1)">W1</button>
+                    <button class="w-btn" id="w2" onclick="setWeek(2)">W2</button>
+                    <button class="w-btn" id="w3" onclick="setWeek(3)">W3</button>
+                    <button class="w-btn" id="w4" onclick="setWeek(4)">W4</button>
                 </div>
-                <div id="admin-actions" class="d-none">
-                    <input type="file" id="file-upload" class="d-none" onchange="inyectarDato()">
-                    <button class="btn-inject" onclick="document.getElementById('file-upload').click()">+ INYECTAR DATOS</button>
+                <div id="admin-tools" class="d-none">
+                    <input type="file" id="file-input" class="d-none" onchange="inyectarDato()">
+                    <button class="inject-btn" onclick="document.getElementById('file-input').click()">+ INYECTAR DATOS</button>
                 </div>
-                <div id="file-list" class="arcana-list"></div>
+                <div id="file-list" class="file-scroller"></div>
             </div>
         </div>
     </div>
