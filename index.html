@@ -3,100 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KVN-ARCANA | SUPREMO V2</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>OS.ARCANA - UPLA</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-
+    <div id="loader"><span>SINCRONIZANDO NÚCLEO...</span></div>
     <canvas id="canvas-particles"></canvas>
 
-    <div id="loader" class="arcana-loader">
-        <div class="loader-circle"></div>
-        <div class="loader-text">SINCRONIZANDO NÚCLEOS...</div>
-    </div>
-
-    <div id="auth-section" class="nexus-wrapper">
-        <div class="arcana-terminal">
-            <h1 class="arcana-glitch" data-text="KVN.EXE">KVN.EXE</h1>
-            <div class="form-container">
-                <div class="arcana-field mt-4">
-                    <input type="text" id="user" required>
-                    <label>ID_OPERADOR</label>
-                </div>
-                <div class="arcana-field mt-4">
-                    <input type="password" id="pass" required>
-                    <label>RUNA_DE_ACCESO</label>
-                </div>
-                <div id="reg-fields" class="d-none">
-                    <div class="arcana-field mt-4">
-                        <input type="text" id="full-name">
-                        <label>NOMBRE_REAL</label>
-                    </div>
-                    <div class="arcana-field mt-4">
-                        <select id="reg-role">
-                            <option value="VISITANTE">VISUALIZADOR</option>
-                            <option value="ADMIN">ADMINISTRADOR</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="ejecutarAccion()" id="main-btn" class="btn-arcana mt-5">IGNICIAR NÚCLEO</button>
-                <button onclick="toggleAuth()" id="btn-toggle" class="btn-link-void mt-3">Crear nueva identidad</button>
+    <div id="auth-section" class="container">
+        <h1 class="glitch">OS.ARCANA</h1>
+        <div class="auth-box">
+            <div id="reg-fields" class="d-none">
+                <input type="text" id="full-name" placeholder="NOMBRE COMPLETO">
+                <select id="reg-role">
+                    <option value="USER">ESTUDIANTE</option>
+                    <option value="ADMIN">ADMINISTRADOR</option>
+                </select>
             </div>
+            <input type="text" id="user" placeholder="USUARIO">
+            <input type="password" id="pass" placeholder="CONTRASEÑA">
+            <button id="main-btn" onclick="ejecutarAccion()">INICIAR NÚCLEO</button>
+            <p onclick="toggleAuth()" class="pointer mt-3 opacity-50" style="font-size: 10px;">INTERCAMBIAR PROTOCOLO (LOGIN/REGISTRO)</p>
         </div>
     </div>
 
-    <div id="portfolio-section" class="d-none">
-        <nav class="arcana-nav">
-            <div class="nav-left">KVN<span class="v-line">|</span>OS.ARCANA</div>
-            <div class="nav-right">
-                <span id="nav-role" class="arcana-badge"></span>
-                <span id="nav-username"></span>
-                <button onclick="logout()" class="btn-disconnect"><i class="fa fa-power-off"></i></button>
+    <div id="portfolio-section" class="container d-none">
+        <nav>
+            <div class="user-info">
+                <span id="nav-username">CARGANDO...</span>
+                <small id="nav-role">SISTEMA</small>
             </div>
+            <button class="logout-btn" onclick="logout()"><i class="fa fa-power-off"></i></button>
         </nav>
 
-        <div class="container-fluid px-4 py-5">
-            <div class="row g-4" id="portal-container">
-                <script>
-                    const mods = [
-                        {id: 1, n: "I", c: "blue"},
-                        {id: 2, n: "II", c: "purple"},
-                        {id: 3, n: "III", c: "cyan"},
-                        {id: 4, n: "IV", c: "red"}
-                    ];
-                    mods.forEach(m => {
-                        document.write(`
-                        <div class="col-xl-3 col-md-6">
-                            <div class="void-portal-card" id="card-${m.id}">
-                                <div class="portal-core core-${m.c}" onclick="abrirPortal(${m.id})">
-                                    <div class="portal-ring ring-1"></div>
-                                    <div class="portal-ring ring-2"></div>
-                                    <div class="portal-energy"></div>
-                                    <div class="portal-particles"></div>
-                                    <div class="portal-label">MOD_${m.id}</div>
-                                </div>
-                                <div class="portal-content">
-                                    <h3>${m.n}</h3>
-                                    <div class="progress-arcana"><div class="p-bar" id="pb-${m.id}"></div></div>
-                                    <p id="cnt-${m.id}" class="small mt-2">0 RUNAS</p>
-                                    
-                                    <div class="internal-interface d-none" id="inv-${m.id}">
-                                        <div class="week-pill-container" id="weeks-${m.id}">
-                                            ${[1,2,3,4].map(w => `<button onclick="setWeek(${m.id},${w})" class="w-pill w-pill-${m.id} w-btn-${m.id}-${w} ${w==1?'active':''}">W${w}</button>`).join('')}
-                                        </div>
-                                        <div id="admin-zone-${m.id}" class="d-none mt-3">
-                                            <input type="file" id="file-${m.id}" class="d-none" onchange="inyectarDato(${m.id})">
-                                            <label for="file-${m.id}" class="btn-upload"><i class="fa fa-plus"></i> INYECTAR</label>
-                                        </div>
-                                        <div class="arcana-list mt-2" id="list-${m.id}"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`);
-                    });
-                </script>
+        <div class="grid-modules">
+            <div class="module-card" onclick="abrirPortal(1)">
+                <div class="orb"><span>MOD_1</span></div>
+                <h3>I</h3>
+                <p id="cnt-1">0 FRAGMENTOS</p>
+                <div class="progress-bar"><div id="pb-1" class="fill"></div></div>
+            </div>
+            <div class="module-card" onclick="abrirPortal(2)">
+                <div class="orb" style="border-color: #a0f;"><span>MOD_2</span></div>
+                <h3>II</h3>
+                <p id="cnt-2">0 FRAGMENTOS</p>
+                <div class="progress-bar"><div id="pb-2" class="fill"></div></div>
+            </div>
+            <div class="module-card" onclick="abrirPortal(3)">
+                <div class="orb" style="border-color: #0f9;"><span>MOD_3</span></div>
+                <h3>III</h3>
+                <p id="cnt-3">0 FRAGMENTOS</p>
+                <div class="progress-bar"><div id="pb-3" class="fill"></div></div>
+            </div>
+            <div class="module-card" onclick="abrirPortal(4)">
+                <div class="orb" style="border-color: #f06;"><span>MOD_4</span></div>
+                <h3>IV</h3>
+                <p id="cnt-4">0 FRAGMENTOS</p>
+                <div class="progress-bar"><div id="pb-4" class="fill"></div></div>
+            </div>
+        </div>
+
+        <div id="unit-content" class="mt-4">
+            <div id="inv-1" class="internal-interface d-none">
+                <div class="weeks-nav">
+                    <button class="w-pill w-btn-1-1 active" onclick="setWeek(1, 1)">W1</button>
+                    <button class="w-pill w-btn-1-2" onclick="setWeek(1, 2)">W2</button>
+                    <button class="w-pill w-btn-1-3" onclick="setWeek(1, 3)">W3</button>
+                    <button class="w-pill w-btn-1-4" onclick="setWeek(1, 4)">W4</button>
+                </div>
+                <div id="admin-zone-1" class="admin-zone d-none">
+                    <input type="file" id="file-1" class="d-none" onchange="inyectarDato(1)">
+                    <button onclick="document.getElementById('file-1').click()" class="btn-inject">+ INYECTAR</button>
+                </div>
+                <div id="list-1" class="file-list"></div>
+            </div>
+
+            <div id="inv-2" class="internal-interface d-none">
+                <div class="weeks-nav">
+                    <button class="w-pill w-btn-2-1 active" onclick="setWeek(2, 1)">W1</button>
+                    <button class="w-pill w-btn-2-2" onclick="setWeek(2, 2)">W2</button>
+                    <button class="w-pill w-btn-2-3" onclick="setWeek(2, 3)">W3</button>
+                    <button class="w-pill w-btn-2-4" onclick="setWeek(2, 4)">W4</button>
+                </div>
+                <div id="admin-zone-2" class="admin-zone d-none">
+                    <input type="file" id="file-2" class="d-none" onchange="inyectarDato(2)">
+                    <button onclick="document.getElementById('file-2').click()" class="btn-inject">+ INYECTAR</button>
+                </div>
+                <div id="list-2" class="file-list"></div>
+            </div>
+
+            <div id="inv-3" class="internal-interface d-none">
+                <div class="weeks-nav">
+                    <button class="w-pill w-btn-3-1 active" onclick="setWeek(3, 1)">W1</button>
+                    <button class="w-pill w-btn-3-2" onclick="setWeek(3, 2)">W2</button>
+                    <button class="w-pill w-btn-3-3" onclick="setWeek(3, 3)">W3</button>
+                    <button class="w-pill w-btn-3-4" onclick="setWeek(3, 4)">W4</button>
+                </div>
+                <div id="admin-zone-3" class="admin-zone d-none">
+                    <input type="file" id="file-3" class="d-none" onchange="inyectarDato(3)">
+                    <button onclick="document.getElementById('file-3').click()" class="btn-inject">+ INYECTAR</button>
+                </div>
+                <div id="list-3" class="file-list"></div>
+            </div>
+
+            <div id="inv-4" class="internal-interface d-none">
+                <div class="weeks-nav">
+                    <button class="w-pill w-btn-4-1 active" onclick="setWeek(4, 1)">W1</button>
+                    <button class="w-pill w-btn-4-2" onclick="setWeek(4, 2)">W2</button>
+                    <button class="w-pill w-btn-4-3" onclick="setWeek(4, 3)">W3</button>
+                    <button class="w-pill w-btn-4-4" onclick="setWeek(4, 4)">W4</button>
+                </div>
+                <div id="admin-zone-4" class="admin-zone d-none">
+                    <input type="file" id="file-4" class="d-none" onchange="inyectarDato(4)">
+                    <button onclick="document.getElementById('file-4').click()" class="btn-inject">+ INYECTAR</button>
+                </div>
+                <div id="list-4" class="file-list"></div>
             </div>
         </div>
     </div>
