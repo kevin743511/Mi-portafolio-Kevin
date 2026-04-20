@@ -9,7 +9,6 @@
 </head>
 <body>
     <div id="loader"><span>CANALIZANDO ENERGÍA...</span></div>
-    
     <div class="void-dome"></div>
     <canvas id="canvas-particles"></canvas>
 
@@ -17,7 +16,7 @@
         <div class="dragon-frame">
             <h1 class="arcana-title">OS.ARCANA</h1>
             <div class="auth-box fire-border">
-                <div id="reg-fields" class="d-none animate-fuego">
+                <div id="reg-fields" class="d-none">
                     <input type="text" id="full-name" placeholder="NOMBRE DEL HÉROE">
                     <select id="reg-role">
                         <option value="ESTUDIANTE">ESTUDIANTE</option>
@@ -38,41 +37,35 @@
         <nav class="void-nav">
             <div class="user-status">
                 <div class="status-orb"></div>
-                <span id="nav-username">KEVIN</span>
-                <small id="nav-role">ADMIN</small>
+                <div>
+                    <span id="nav-username">KEVIN</span><br>
+                    <small id="nav-role">ADMIN</small>
+                </div>
             </div>
             <button class="btn-exit" onclick="logout()"><i class="fa fa-power-off"></i></button>
         </nav>
 
         <div class="grid-modules">
             <div class="module-card portal-dragon" onclick="abrirPortal(1)">
-                <div class="flame-container">
-                    <div class="orb"><span>MOD_1</span></div>
-                </div>
+                <div class="orb"><span>MOD_1</span></div>
                 <h3>UNIDAD I</h3>
                 <p id="cnt-1">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-1" class="mana-fill"></div></div>
             </div>
             <div class="module-card portal-dragon purple-flame" onclick="abrirPortal(2)">
-                <div class="flame-container">
-                    <div class="orb"><span>MOD_2</span></div>
-                </div>
+                <div class="orb"><span>MOD_2</span></div>
                 <h3>UNIDAD II</h3>
                 <p id="cnt-2">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-2" class="mana-fill"></div></div>
             </div>
             <div class="module-card portal-dragon green-flame" onclick="abrirPortal(3)">
-                <div class="flame-container">
-                    <div class="orb"><span>MOD_3</span></div>
-                </div>
+                <div class="orb"><span>MOD_3</span></div>
                 <h3>UNIDAD III</h3>
                 <p id="cnt-3">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-3" class="mana-fill"></div></div>
             </div>
             <div class="module-card portal-dragon red-flame" onclick="abrirPortal(4)">
-                <div class="flame-container">
-                    <div class="orb"><span>MOD_4</span></div>
-                </div>
+                <div class="orb"><span>MOD_4</span></div>
                 <h3>UNIDAD IV</h3>
                 <p id="cnt-4">0 FRAGMENTOS</p>
                 <div class="mana-bar"><div id="pb-4" class="mana-fill"></div></div>
@@ -86,7 +79,7 @@
                     <button onclick="cerrarPortal()" class="close-vault">&times;</button>
                 </div>
                 <div class="week-selector">
-                    <button class="w-btn" id="w1" onclick="setWeek(1)">SEMANA 1</button>
+                    <button class="w-btn active" id="w1" onclick="setWeek(1)">SEMANA 1</button>
                     <button class="w-btn" id="w2" onclick="setWeek(2)">SEMANA 2</button>
                     <button class="w-btn" id="w3" onclick="setWeek(3)">SEMANA 3</button>
                     <button class="w-btn" id="w4" onclick="setWeek(4)">SEMANA 4</button>
