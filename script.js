@@ -36,7 +36,6 @@ let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 window.onload = () => {
     initParticles(); 
     animateParticles();
-    // Al cargar la página, intentamos bajar los datos de la nube automáticamente
     descargarNube();
     setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
 };
@@ -64,7 +63,6 @@ function ejecutarAccion() {
         const r = document.getElementById('reg-role').value;
         db.push({user: u, pass: p, name: n, role: r});
         localStorage.setItem('arcana_users', JSON.stringify(db));
-        // Sincronizamos el nuevo usuario con la nube
         sincronizarNube();
         alert("Identidad forjada con éxito"); 
         toggleAuth();
@@ -115,7 +113,6 @@ function inyectarDato(u) {
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
         renderList(u); 
         updateCounters();
-        // MANDAR A LA NUBE AUTOMÁTICAMENTE
         sincronizarNube();
     };
     reader.readAsDataURL(file);
@@ -158,7 +155,6 @@ function eliminar(id, u) {
     localStorage.setItem('arcana_vault', JSON.stringify(vault));
     renderList(u); 
     updateCounters();
-    // ACTUALIZAR NUBE TRAS ELIMINAR
     sincronizarNube();
 }
 
@@ -173,8 +169,17 @@ async function sincronizarNube() {
     const users = JSON.parse(localStorage.getItem('arcana_users')) || [];
     const payload = { vault, users };
 
+    // Validación de tamaño antes de enviar
+    const sizeInKb = (JSON.stringify(payload).length / 1024).toFixed(2);
+    console.log(`Peso actual del sistema: ${sizeInKb} KB`);
+
+    if (sizeInKb > 100) {
+        alert("¡CAPACIDAD AL LÍMITE! El archivo es muy pesado para la nube gratuita. Prueba con un PDF/Word más ligero.");
+        return;
+    }
+
     try {
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -183,9 +188,15 @@ async function sincronizarNube() {
             },
             body: JSON.stringify(payload)
         });
-        console.log("Datos sincronizados con éxito en la nube.");
+        
+        if (response.ok) {
+            console.log("Nexo Sincronizado: Datos enviados a la nube.");
+        } else {
+            const errorInfo = await response.json();
+            console.error("Error Nube:", errorInfo.message);
+        }
     } catch (err) {
-        console.error("Error al sincronizar con la nube: ", err);
+        console.error("Fallo de red:", err);
     }
 }
 
@@ -200,13 +211,12 @@ async function descargarNube() {
             localStorage.setItem('arcana_vault', JSON.stringify(data.record.vault));
             localStorage.setItem('arcana_users', JSON.stringify(data.record.users));
             
-            // Si el usuario ya está dentro, refrescamos los contadores y listas
             if (currentUser) {
                 updateCounters();
                 if (currentUnit) renderList(currentUnit);
             }
         }
     } catch (err) {
-        console.log("Modo local activado.");
+        console.log("Modo local activo.");
     }
 }
