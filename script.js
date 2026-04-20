@@ -1,4 +1,4 @@
-// CONFIGURACIÓN DE PARTÍCULAS
+// --- CONFIGURACIÓN DE PARTÍCULAS (FONDO) ---
 const canvas = document.getElementById('canvas-particles');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -27,14 +27,17 @@ function animateParticles() {
     requestAnimationFrame(animateParticles);
 }
 
-// ESTADO GLOBAL
+// --- ESTADO GLOBAL Y LÓGICA DE USUARIO ---
 let isLogin = true;
 let currentUser = null;
 let currentUnit = null;
-let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 }; // Manejo independiente de semanas por unidad
+let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 
 window.onload = () => {
-    initParticles(); animateParticles();
+    initParticles(); 
+    animateParticles();
+    // Al cargar la página, intentamos bajar los datos de la nube
+    descargarNube();
     setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
 };
 
@@ -53,7 +56,6 @@ function ejecutarAccion() {
 
     if(isLogin) {
         const found = db.find(x => x.user === u && x.pass === p);
-        // Credenciales por defecto para Kevin
         if(u === "kevin" && p === "upla") loginOK({name: "Kevin Coñas", role: "ADMIN"});
         else if(found) loginOK(found);
         else alert("Sincronización fallida: Usuario no encontrado");
@@ -62,7 +64,10 @@ function ejecutarAccion() {
         const r = document.getElementById('reg-role').value;
         db.push({user: u, pass: p, name: n, role: r});
         localStorage.setItem('arcana_users', JSON.stringify(db));
-        alert("Identidad forjada con éxito"); toggleAuth();
+        // Sincronizamos el nuevo usuario con la nube
+        sincronizarNube();
+        alert("Identidad forjada con éxito"); 
+        toggleAuth();
     }
 }
 
@@ -78,10 +83,7 @@ function loginOK(user) {
 function abrirPortal(u) {
     const target = document.getElementById(`inv-${u}`);
     const isVisible = !target.classList.contains('d-none');
-    
-    // Cerrar todos primero
     document.querySelectorAll('.internal-interface').forEach(i => i.classList.add('d-none'));
-    
     if(!isVisible) {
         target.classList.remove('d-none');
         currentUnit = u;
@@ -90,23 +92,16 @@ function abrirPortal(u) {
     }
 }
 
-// ARREGLADO: Función para cambiar semanas sin que queden encendidas otras
 function setWeek(u, w) {
-    activeWeeks[u] = w; // Guardamos qué semana está activa en esta unidad específica
-    
-    // UI: Limpiar todas las semanas de ESTA unidad
+    activeWeeks[u] = w;
     document.querySelectorAll(`.w-pill-${u}`).forEach(btn => btn.classList.remove('active'));
-    
-    // UI: Activar solo la seleccionada
     document.querySelector(`.w-btn-${u}-${w}`).classList.add('active');
-    
     renderList(u);
 }
 
 function inyectarDato(u) {
     const file = document.getElementById(`file-${u}`).files[0];
     if(!file) return;
-    
     const reader = new FileReader();
     reader.onload = (e) => {
         let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
@@ -118,7 +113,10 @@ function inyectarDato(u) {
             data: e.target.result
         });
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
-        renderList(u); updateCounters();
+        renderList(u); 
+        updateCounters();
+        // MANDAR A LA NUBE TRAS SUBIR
+        sincronizarNube();
     };
     reader.readAsDataURL(file);
 }
@@ -127,9 +125,7 @@ function renderList(u) {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const filtered = vault.filter(v => v.unit == u && v.week == activeWeeks[u]);
     const container = document.getElementById(`list-${u}`);
-    
     container.innerHTML = filtered.length ? "" : "<div class='text-center p-3 opacity-25' style='font-size:9px'>SIN_FRAGMENTOS</div>";
-    
     filtered.forEach(v => {
         container.innerHTML += `
             <div class="file-row">
@@ -147,7 +143,6 @@ function updateCounters() {
     for(let i=1; i<=4; i++) {
         const count = vault.filter(v => v.unit == i).length;
         document.getElementById(`cnt-${i}`).innerText = `${count} FRAGMENTOS`;
-        // Actualizar barra de progreso (max 20 archivos por unidad para 100%)
         const percent = Math.min((count / 20) * 100, 100);
         document.getElementById(`pb-${i}`).style.width = percent + "%";
     }
@@ -161,7 +156,57 @@ function eliminar(id, u) {
     let vault = JSON.parse(localStorage.getItem('arcana_vault'));
     vault = vault.filter(v => v.id !== id);
     localStorage.setItem('arcana_vault', JSON.stringify(vault));
-    renderList(u); updateCounters();
+    renderList(u); 
+    updateCounters();
+    // ACTUALIZAR NUBE TRAS ELIMINAR
+    sincronizarNube();
 }
 
 function logout() { location.reload(); }
+
+// --- EXTENSIÓN PARA SINCRONIZACIÓN EN LA NUBE (GITHUB COMPARTIDO) ---
+const BIN_ID = '69e6a6baaaba8821971da757'; 
+const API_KEY = 'TU_MASTER_KEY_AQUÍ'; // <-- REEMPLAZA ESTO CON TU KEY REAL
+
+async function sincronizarNube() {
+    const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
+    const users = JSON.parse(localStorage.getItem('arcana_users')) || [];
+    const payload = { vault, users };
+
+    try {
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': API_KEY,
+                'X-Bin-Versioning': 'false'
+            },
+            body: JSON.stringify(payload)
+        });
+        console.log("Nexo Sincronizado con la Nube");
+    } catch (err) {
+        console.error("Fallo en la conexión Arcana: ", err);
+    }
+}
+
+async function descargarNube() {
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': API_KEY }
+        });
+        const data = await res.json();
+        
+        if (data.record && data.record.vault) {
+            localStorage.setItem('arcana_vault', JSON.stringify(data.record.vault));
+            localStorage.setItem('arcana_users', JSON.stringify(data.record.users));
+            
+            // Si el usuario ya está logueado por sesión activa, refrescamos la vista
+            if (currentUser) {
+                updateCounters();
+                if (currentUnit) renderList(currentUnit);
+            }
+        }
+    } catch (err) {
+        console.log("Iniciando sistema en modo local...");
+    }
+}
