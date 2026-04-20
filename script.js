@@ -33,13 +33,13 @@ let currentUser = null;
 let currentUnit = null;
 let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 
-// URL de tu base de datos Firebase
+// URL de tu base de datos Firebase (Asegúrate de que las REGLAS en Firebase sean .read: true y .write: true)
 const FIREBASE_URL = 'https://portafolioupla-default-rtdb.firebaseio.com/.json';
 
 window.onload = () => {
     initParticles(); 
     animateParticles();
-    descargarDeFirebase();
+    descargarDeFirebase(); // Esto descarga cuentas y archivos apenas abre la web
     setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
 };
 
@@ -50,25 +50,39 @@ function toggleAuth() {
     document.getElementById('main-btn').innerText = isLogin ? "INICIAR NÚCLEO" : "CREAR IDENTIDAD";
 }
 
-function ejecutarAccion() {
+async function ejecutarAccion() {
     const u = document.getElementById('user').value.trim();
     const p = document.getElementById('pass').value.trim();
     if(!u || !p) return alert("Ingrese sus runas de acceso");
 
+    // Primero intentamos descargar lo más reciente de la nube para estar seguros
+    await descargarDeFirebase();
+    
     let db = JSON.parse(localStorage.getItem('arcana_users')) || [];
 
     if(isLogin) {
+        // Buscamos en la base de datos descargada
         const found = db.find(x => x.user === u && x.pass === p);
-        if(u === "kevin" && p === "upla") loginOK({name: "Kevin Coñas", role: "ADMIN"});
-        else if(found) loginOK(found);
-        else alert("Acceso denegado.");
+        
+        if(u === "kevin" && p === "upla") {
+            loginOK({name: "Kevin Coñas", role: "ADMIN"});
+        } else if(found) {
+            loginOK(found);
+        } else {
+            alert("Acceso denegado: Usuario no encontrado en la Red Arcana.");
+        }
     } else {
         const n = document.getElementById('full-name').value;
         const r = document.getElementById('reg-role').value;
+        
+        // Evitar duplicados
+        if(db.find(x => x.user === u)) return alert("Esta identidad ya existe.");
+
         db.push({user: u, pass: p, name: n, role: r});
         localStorage.setItem('arcana_users', JSON.stringify(db));
-        sincronizarConFirebase();
-        alert("Identidad registrada."); 
+        
+        await sincronizarConFirebase();
+        alert("Identidad registrada y subida a la nube."); 
         toggleAuth();
     }
 }
@@ -80,6 +94,7 @@ function loginOK(user) {
     document.getElementById('nav-username').innerText = user.name.toUpperCase();
     document.getElementById('nav-role').innerText = user.role;
     updateCounters();
+    if(currentUnit) renderList(currentUnit);
 }
 
 function abrirPortal(u) {
@@ -107,7 +122,7 @@ function inyectarDato(u) {
     if(!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
         vault.push({
             id: Date.now(),
@@ -119,8 +134,8 @@ function inyectarDato(u) {
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
         renderList(u); 
         updateCounters();
-        sincronizarConFirebase(); 
-        fileInput.value = ""; // Limpiar input tras subir
+        await sincronizarConFirebase(); 
+        fileInput.value = "";
     };
     reader.readAsDataURL(file);
 }
@@ -129,6 +144,8 @@ function renderList(u) {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const filtered = vault.filter(v => v.unit == u && v.week == activeWeeks[u]);
     const container = document.getElementById(`list-${u}`);
+    if(!container) return;
+
     container.innerHTML = filtered.length ? "" : "<div class='text-center p-3 opacity-25' style='font-size:9px'>VACÍO</div>";
     filtered.forEach(v => {
         container.innerHTML += `
@@ -146,7 +163,9 @@ function updateCounters() {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     for(let i=1; i<=4; i++) {
         const count = vault.filter(v => v.unit == i).length;
-        document.getElementById(`cnt-${i}`).innerText = `${count} FRAGMENTOS`;
+        const countElem = document.getElementById(`cnt-${i}`);
+        if(countElem) countElem.innerText = `${count} FRAGMENTOS`;
+        
         const percent = Math.min((count / 20) * 100, 100);
         const bar = document.getElementById(`pb-${i}`);
         if(bar) bar.style.width = percent + "%";
@@ -160,13 +179,13 @@ function descargar(data, name) {
     link.click();
 }
 
-function eliminar(id, u) {
+async function eliminar(id, u) {
     let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     vault = vault.filter(v => v.id !== id);
     localStorage.setItem('arcana_vault', JSON.stringify(vault));
     renderList(u); 
     updateCounters();
-    sincronizarConFirebase();
+    await sincronizarConFirebase();
 }
 
 function logout() { location.reload(); }
@@ -178,13 +197,13 @@ async function sincronizarConFirebase() {
     const payload = { vault, users };
 
     try {
-        const response = await fetch(FIREBASE_URL, {
+        await fetch(FIREBASE_URL, {
             method: 'PUT',
             body: JSON.stringify(payload)
         });
-        if(response.ok) console.log("🔥 Datos guardados en la nube.");
+        console.log("Sincronización exitosa.");
     } catch (err) {
-        console.error("Error al guardar:", err);
+        console.error("Error al sincronizar:", err);
     }
 }
 
@@ -193,15 +212,16 @@ async function descargarDeFirebase() {
         const res = await fetch(FIREBASE_URL);
         const data = await res.json();
         if (data) {
-            if(data.vault) localStorage.setItem('arcana_vault', JSON.stringify(data.vault));
-            if(data.users) localStorage.setItem('arcana_users', JSON.stringify(data.users));
+            localStorage.setItem('arcana_vault', JSON.stringify(data.vault || []));
+            localStorage.setItem('arcana_users', JSON.stringify(data.users || []));
             
+            // Si el usuario ya se logueó, refrescamos la interfaz
             if (currentUser) {
                 updateCounters();
                 if (currentUnit) renderList(currentUnit);
             }
         }
     } catch (err) {
-        console.log("Error al descargar:", err);
+        console.error("Error al descargar:", err);
     }
 }
