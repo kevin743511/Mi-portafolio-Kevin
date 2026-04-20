@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OS.ARCANA - Portafolio UPLA</title>
+    <title>OS.ARCANA - Portafolio Cinemático</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="loader"><span>SINCRONIZANDO NEXO...</span></div>
+    <div id="loader"><span>INICIALIZANDO NÚCLEO...</span></div>
     <canvas id="canvas-particles"></canvas>
 
     <div id="auth-section" class="container">
-        <h1 class="glitch">OS.ARCANA</h1>
+        <h1 class="glitch" data-text="OS.ARCANA">OS.ARCANA</h1>
         <div class="auth-box">
             <div id="reg-fields" class="d-none">
                 <input type="text" id="full-name" placeholder="NOMBRE COMPLETO">
@@ -21,68 +21,81 @@
                     <option value="ADMIN">ADMINISTRADOR</option>
                 </select>
             </div>
-            <input type="text" id="user" placeholder="USUARIO">
-            <input type="password" id="pass" placeholder="CONTRASEÑA">
+            <div class="input-group">
+                <input type="text" id="user" placeholder="ID DE USUARIO">
+                <input type="password" id="pass" placeholder="CONTRASEÑA">
+            </div>
             <button id="main-btn" onclick="ejecutarAccion()">INICIAR NÚCLEO</button>
-            <p onclick="toggleAuth()" class="pointer mt-3 opacity-50" style="font-size:10px">INTERCAMBIAR PROTOCOLO (LOGIN/REGISTRO)</p>
+            <p onclick="toggleAuth()" class="auth-toggle">INTERCAMBIAR PROTOCOLO (LOGIN/REGISTRO)</p>
         </div>
     </div>
 
     <div id="portfolio-section" class="container d-none">
-        <nav>
-            <div class="user-info">
-                <span id="nav-username">SISTEMA</span>
-                <small id="nav-role">CARGANDO...</small>
+        <nav class="glass-nav">
+            <div class="user-profile">
+                <div class="avatar"></div>
+                <div class="info">
+                    <span id="nav-username">USUARIO</span>
+                    <small id="nav-role">SISTEMA</small>
+                </div>
             </div>
-            <button class="logout-btn" onclick="logout()"><i class="fa fa-power-off"></i></button>
+            <button class="btn-logout" onclick="logout()"><i class="fa fa-power-off"></i></button>
         </nav>
 
         <div class="grid-modules">
             <div class="module-card" id="card-1" onclick="abrirPortal(1)">
                 <div class="orb"><span>MOD_1</span></div>
-                <h3>I</h3>
+                <h3>UNIDAD I</h3>
                 <p id="cnt-1">0 FRAGMENTOS</p>
                 <div class="progress-bar"><div id="pb-1" class="fill"></div></div>
             </div>
-
             <div class="module-card" id="card-2" onclick="abrirPortal(2)">
-                <div class="orb" style="border-color: #a0f;"><span>MOD_2</span></div>
-                <h3>II</h3>
+                <div class="orb orb-purple"><span>MOD_2</span></div>
+                <h3>UNIDAD II</h3>
                 <p id="cnt-2">0 FRAGMENTOS</p>
                 <div class="progress-bar"><div id="pb-2" class="fill"></div></div>
             </div>
-
             <div class="module-card" id="card-3" onclick="abrirPortal(3)">
-                <div class="orb" style="border-color: #0f9;"><span>MOD_3</span></div>
-                <h3>III</h3>
+                <div class="orb orb-green"><span>MOD_3</span></div>
+                <h3>UNIDAD III</h3>
                 <p id="cnt-3">0 FRAGMENTOS</p>
                 <div class="progress-bar"><div id="pb-3" class="fill"></div></div>
             </div>
-
             <div class="module-card" id="card-4" onclick="abrirPortal(4)">
-                <div class="orb" style="border-color: #f06;"><span>MOD_4</span></div>
-                <h3>IV</h3>
+                <div class="orb orb-red"><span>MOD_4</span></div>
+                <h3>UNIDAD IV</h3>
                 <p id="cnt-4">0 FRAGMENTOS</p>
                 <div class="progress-bar"><div id="pb-4" class="fill"></div></div>
             </div>
         </div>
 
-        <div id="unit-viewer" class="mt-4">
-            <div id="inv-1" class="internal-interface d-none">
-                <div class="weeks-nav">
-                    <button class="w-pill w-btn-1-1 active" onclick="setWeek(1, 1)">W1</button>
-                    <button class="w-pill w-btn-1-2" onclick="setWeek(1, 2)">W2</button>
-                    <button class="w-pill w-btn-1-3" onclick="setWeek(1, 3)">W3</button>
-                    <button class="w-pill w-btn-1-4" onclick="setWeek(1, 4)">W4</button>
+        <div id="portal-overlay" class="portal-overlay d-none">
+            <div class="portal-content">
+                <div class="portal-header">
+                    <h2 id="portal-title">UNIDAD N</h2>
+                    <button onclick="cerrarPortal()" class="btn-close">&times;</button>
                 </div>
-                <div id="admin-zone-1" class="admin-zone d-none">
-                    <input type="file" id="file-1" class="d-none" onchange="inyectarDato(1)">
-                    <button onclick="document.getElementById('file-1').click()" class="btn-inject">+ INYECTAR</button>
+                
+                <div class="weeks-bar">
+                    <button class="w-btn active" id="w1-btn" onclick="setWeek(1)">W1</button>
+                    <button class="w-btn" id="w2-btn" onclick="setWeek(2)">W2</button>
+                    <button class="w-btn" id="w3-btn" onclick="setWeek(3)">W3</button>
+                    <button class="w-btn" id="w4-btn" onclick="setWeek(4)">W4</button>
                 </div>
-                <div id="list-1" class="file-list"></div>
+
+                <div id="admin-controls" class="admin-zone d-none">
+                    <input type="file" id="file-input" class="d-none" onchange="inyectarDato()">
+                    <button onclick="document.getElementById('file-input').click()" class="btn-upload">
+                        <i class="fa fa-plus"></i> INYECTAR FRAGMENTO
+                    </button>
+                </div>
+
+                <div id="file-list" class="file-grid">
+                    </div>
             </div>
-            </div>
+        </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
