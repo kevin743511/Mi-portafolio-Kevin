@@ -33,13 +33,13 @@ let currentUser = null;
 let currentUnit = null;
 let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 
-// --- CONFIGURACIÓN FIREBASE (ACTUALIZADO) ---
+// URL de tu base de datos Firebase
 const FIREBASE_URL = 'https://portafolioupla-default-rtdb.firebaseio.com/.json';
 
 window.onload = () => {
     initParticles(); 
     animateParticles();
-    descargarDeFirebase(); // Sincronización inicial al abrir la página
+    descargarDeFirebase();
     setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
 };
 
@@ -47,7 +47,7 @@ window.onload = () => {
 function toggleAuth() {
     isLogin = !isLogin;
     document.getElementById('reg-fields').classList.toggle('d-none');
-    document.getElementById('main-btn').innerText = isLogin ? "IGNICIAR NÚCLEO" : "CREAR IDENTIDAD";
+    document.getElementById('main-btn').innerText = isLogin ? "INICIAR NÚCLEO" : "CREAR IDENTIDAD";
 }
 
 function ejecutarAccion() {
@@ -82,7 +82,6 @@ function loginOK(user) {
     updateCounters();
 }
 
-// --- GESTIÓN DE PORTALES ---
 function abrirPortal(u) {
     const target = document.getElementById(`inv-${u}`);
     const isVisible = !target.classList.contains('d-none');
@@ -103,8 +102,10 @@ function setWeek(u, w) {
 }
 
 function inyectarDato(u) {
-    const file = document.getElementById(`file-${u}`).files[0];
+    const fileInput = document.getElementById(`file-${u}`);
+    const file = fileInput.files[0];
     if(!file) return;
+
     const reader = new FileReader();
     reader.onload = (e) => {
         let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
@@ -118,7 +119,8 @@ function inyectarDato(u) {
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
         renderList(u); 
         updateCounters();
-        sincronizarConFirebase(); // Subida automática
+        sincronizarConFirebase(); 
+        fileInput.value = ""; // Limpiar input tras subir
     };
     reader.readAsDataURL(file);
 }
@@ -146,12 +148,16 @@ function updateCounters() {
         const count = vault.filter(v => v.unit == i).length;
         document.getElementById(`cnt-${i}`).innerText = `${count} FRAGMENTOS`;
         const percent = Math.min((count / 20) * 100, 100);
-        document.getElementById(`pb-${i}`).style.width = percent + "%";
+        const bar = document.getElementById(`pb-${i}`);
+        if(bar) bar.style.width = percent + "%";
     }
 }
 
 function descargar(data, name) {
-    const link = document.createElement('a'); link.href = data; link.download = name; link.click();
+    const link = document.createElement('a'); 
+    link.href = data; 
+    link.download = name; 
+    link.click();
 }
 
 function eliminar(id, u) {
@@ -165,20 +171,20 @@ function eliminar(id, u) {
 
 function logout() { location.reload(); }
 
-// --- MOTOR DE SINCRONIZACIÓN FIREBASE (NUEVO) ---
+// --- MOTOR DE SINCRONIZACIÓN ---
 async function sincronizarConFirebase() {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const users = JSON.parse(localStorage.getItem('arcana_users')) || [];
     const payload = { vault, users };
 
     try {
-        await fetch(FIREBASE_URL, {
+        const response = await fetch(FIREBASE_URL, {
             method: 'PUT',
             body: JSON.stringify(payload)
         });
-        console.log("🔥 Firebase: Nexo Sincronizado.");
+        if(response.ok) console.log("🔥 Datos guardados en la nube.");
     } catch (err) {
-        console.error("Error en Firebase:", err);
+        console.error("Error al guardar:", err);
     }
 }
 
@@ -186,15 +192,16 @@ async function descargarDeFirebase() {
     try {
         const res = await fetch(FIREBASE_URL);
         const data = await res.json();
-        if (data && data.vault) {
-            localStorage.setItem('arcana_vault', JSON.stringify(data.vault));
-            localStorage.setItem('arcana_users', JSON.stringify(data.users || []));
+        if (data) {
+            if(data.vault) localStorage.setItem('arcana_vault', JSON.stringify(data.vault));
+            if(data.users) localStorage.setItem('arcana_users', JSON.stringify(data.users));
+            
             if (currentUser) {
                 updateCounters();
                 if (currentUnit) renderList(currentUnit);
             }
         }
     } catch (err) {
-        console.log("Modo local.");
+        console.log("Error al descargar:", err);
     }
 }
