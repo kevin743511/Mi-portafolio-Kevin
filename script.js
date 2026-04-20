@@ -36,7 +36,7 @@ let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 window.onload = () => {
     initParticles(); 
     animateParticles();
-    // Al cargar la página, intentamos bajar los datos de la nube
+    // Al cargar la página, intentamos bajar los datos de la nube automáticamente
     descargarNube();
     setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
 };
@@ -115,7 +115,7 @@ function inyectarDato(u) {
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
         renderList(u); 
         updateCounters();
-        // MANDAR A LA NUBE TRAS SUBIR
+        // MANDAR A LA NUBE AUTOMÁTICAMENTE
         sincronizarNube();
     };
     reader.readAsDataURL(file);
@@ -164,9 +164,9 @@ function eliminar(id, u) {
 
 function logout() { location.reload(); }
 
-// --- EXTENSIÓN PARA SINCRONIZACIÓN EN LA NUBE (GITHUB COMPARTIDO) ---
+// --- CONFIGURACIÓN DE SINCRONIZACIÓN EN LA NUBE ---
 const BIN_ID = '69e6a6baaaba8821971da757'; 
-const API_KEY = 'TU_MASTER_KEY_AQUÍ'; // <-- REEMPLAZA ESTO CON TU KEY REAL
+const API_KEY = '$2a$10$HSYxbJUHSoM0BckXs8zh8uSrj8qVCMa5Bc.tRtyyAcIIJXe.1tb7K'; 
 
 async function sincronizarNube() {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
@@ -183,9 +183,9 @@ async function sincronizarNube() {
             },
             body: JSON.stringify(payload)
         });
-        console.log("Nexo Sincronizado con la Nube");
+        console.log("Datos sincronizados con éxito en la nube.");
     } catch (err) {
-        console.error("Fallo en la conexión Arcana: ", err);
+        console.error("Error al sincronizar con la nube: ", err);
     }
 }
 
@@ -200,13 +200,13 @@ async function descargarNube() {
             localStorage.setItem('arcana_vault', JSON.stringify(data.record.vault));
             localStorage.setItem('arcana_users', JSON.stringify(data.record.users));
             
-            // Si el usuario ya está logueado por sesión activa, refrescamos la vista
+            // Si el usuario ya está dentro, refrescamos los contadores y listas
             if (currentUser) {
                 updateCounters();
                 if (currentUnit) renderList(currentUnit);
             }
         }
     } catch (err) {
-        console.log("Iniciando sistema en modo local...");
+        console.log("Modo local activado.");
     }
 }
