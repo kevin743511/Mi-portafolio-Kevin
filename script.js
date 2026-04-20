@@ -1,4 +1,4 @@
-// --- CONFIGURACIÓN DE PARTÍCULAS (FONDO) ---
+// --- CONFIGURACIÓN DE PARTÍCULAS (MANTENIDO) ---
 const canvas = document.getElementById('canvas-particles');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -27,19 +27,23 @@ function animateParticles() {
     requestAnimationFrame(animateParticles);
 }
 
-// --- ESTADO GLOBAL Y LÓGICA DE USUARIO ---
+// --- ESTADO GLOBAL ---
 let isLogin = true;
 let currentUser = null;
 let currentUnit = null;
 let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 
+// --- CONFIGURACIÓN FIREBASE (ACTUALIZADO) ---
+const FIREBASE_URL = 'https://portafolioupla-default-rtdb.firebaseio.com/.json';
+
 window.onload = () => {
     initParticles(); 
     animateParticles();
-    descargarNube();
+    descargarDeFirebase(); // Sincronización inicial al abrir la página
     setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
 };
 
+// --- LÓGICA DE USUARIO ---
 function toggleAuth() {
     isLogin = !isLogin;
     document.getElementById('reg-fields').classList.toggle('d-none');
@@ -57,14 +61,14 @@ function ejecutarAccion() {
         const found = db.find(x => x.user === u && x.pass === p);
         if(u === "kevin" && p === "upla") loginOK({name: "Kevin Coñas", role: "ADMIN"});
         else if(found) loginOK(found);
-        else alert("Sincronización fallida: Usuario no encontrado");
+        else alert("Acceso denegado.");
     } else {
         const n = document.getElementById('full-name').value;
         const r = document.getElementById('reg-role').value;
         db.push({user: u, pass: p, name: n, role: r});
         localStorage.setItem('arcana_users', JSON.stringify(db));
-        sincronizarNube();
-        alert("Identidad forjada con éxito"); 
+        sincronizarConFirebase();
+        alert("Identidad registrada."); 
         toggleAuth();
     }
 }
@@ -78,6 +82,7 @@ function loginOK(user) {
     updateCounters();
 }
 
+// --- GESTIÓN DE PORTALES ---
 function abrirPortal(u) {
     const target = document.getElementById(`inv-${u}`);
     const isVisible = !target.classList.contains('d-none');
@@ -113,7 +118,7 @@ function inyectarDato(u) {
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
         renderList(u); 
         updateCounters();
-        sincronizarNube();
+        sincronizarConFirebase(); // Subida automática
     };
     reader.readAsDataURL(file);
 }
@@ -122,7 +127,7 @@ function renderList(u) {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const filtered = vault.filter(v => v.unit == u && v.week == activeWeeks[u]);
     const container = document.getElementById(`list-${u}`);
-    container.innerHTML = filtered.length ? "" : "<div class='text-center p-3 opacity-25' style='font-size:9px'>SIN_FRAGMENTOS</div>";
+    container.innerHTML = filtered.length ? "" : "<div class='text-center p-3 opacity-25' style='font-size:9px'>VACÍO</div>";
     filtered.forEach(v => {
         container.innerHTML += `
             <div class="file-row">
@@ -150,73 +155,46 @@ function descargar(data, name) {
 }
 
 function eliminar(id, u) {
-    let vault = JSON.parse(localStorage.getItem('arcana_vault'));
+    let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     vault = vault.filter(v => v.id !== id);
     localStorage.setItem('arcana_vault', JSON.stringify(vault));
     renderList(u); 
     updateCounters();
-    sincronizarNube();
+    sincronizarConFirebase();
 }
 
 function logout() { location.reload(); }
 
-// --- CONFIGURACIÓN DE SINCRONIZACIÓN EN LA NUBE ---
-const BIN_ID = '69e6a6baaaba8821971da757'; 
-const API_KEY = '$2a$10$HSYxbJUHSoM0BckXs8zh8uSrj8qVCMa5Bc.tRtyyAcIIJXe.1tb7K'; 
-
-async function sincronizarNube() {
+// --- MOTOR DE SINCRONIZACIÓN FIREBASE (NUEVO) ---
+async function sincronizarConFirebase() {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const users = JSON.parse(localStorage.getItem('arcana_users')) || [];
     const payload = { vault, users };
 
-    // Validación de tamaño antes de enviar
-    const sizeInKb = (JSON.stringify(payload).length / 1024).toFixed(2);
-    console.log(`Peso actual del sistema: ${sizeInKb} KB`);
-
-    if (sizeInKb > 100) {
-        alert("¡CAPACIDAD AL LÍMITE! El archivo es muy pesado para la nube gratuita. Prueba con un PDF/Word más ligero.");
-        return;
-    }
-
     try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        await fetch(FIREBASE_URL, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': API_KEY,
-                'X-Bin-Versioning': 'false'
-            },
             body: JSON.stringify(payload)
         });
-        
-        if (response.ok) {
-            console.log("Nexo Sincronizado: Datos enviados a la nube.");
-        } else {
-            const errorInfo = await response.json();
-            console.error("Error Nube:", errorInfo.message);
-        }
+        console.log("🔥 Firebase: Nexo Sincronizado.");
     } catch (err) {
-        console.error("Fallo de red:", err);
+        console.error("Error en Firebase:", err);
     }
 }
 
-async function descargarNube() {
+async function descargarDeFirebase() {
     try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            headers: { 'X-Master-Key': API_KEY }
-        });
+        const res = await fetch(FIREBASE_URL);
         const data = await res.json();
-        
-        if (data.record && data.record.vault) {
-            localStorage.setItem('arcana_vault', JSON.stringify(data.record.vault));
-            localStorage.setItem('arcana_users', JSON.stringify(data.record.users));
-            
+        if (data && data.vault) {
+            localStorage.setItem('arcana_vault', JSON.stringify(data.vault));
+            localStorage.setItem('arcana_users', JSON.stringify(data.users || []));
             if (currentUser) {
                 updateCounters();
                 if (currentUnit) renderList(currentUnit);
             }
         }
     } catch (err) {
-        console.log("Modo local activo.");
+        console.log("Modo local.");
     }
 }
