@@ -1,4 +1,4 @@
-// --- CONFIGURACIÓN DE PARTÍCULAS (MANTENIDO) ---
+// PARTÍCULAS
 const canvas = document.getElementById('canvas-particles');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -9,9 +9,7 @@ function initParticles() {
     particles = Array.from({length: 80}, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        s: Math.random() * 2
+        vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, s: Math.random() * 2
     }));
 }
 
@@ -27,20 +25,17 @@ function animateParticles() {
     requestAnimationFrame(animateParticles);
 }
 
-// --- ESTADO GLOBAL ---
+// ESTADO GLOBAL Y FIREBASE
+const FIREBASE_URL = 'https://portafolioupla-default-rtdb.firebaseio.com/.json';
 let isLogin = true;
 let currentUser = null;
 let currentUnit = null;
 let activeWeeks = { 1: 1, 2: 1, 3: 1, 4: 1 };
 
-// URL DE TU FIREBASE (Asegúrate de que termine en .json)
-const FIREBASE_URL = 'https://portafolioupla-default-rtdb.firebaseio.com/.json';
-
-window.onload = () => {
-    initParticles(); 
-    animateParticles();
-    descargarDeFirebase();
-    setTimeout(() => document.getElementById('loader').style.display = 'none', 1200);
+window.onload = async () => {
+    initParticles(); animateParticles();
+    await descargarDeFirebase();
+    document.getElementById('loader').style.display = 'none';
 };
 
 function toggleAuth() {
@@ -49,41 +44,29 @@ function toggleAuth() {
     document.getElementById('main-btn').innerText = isLogin ? "INICIAR NÚCLEO" : "CREAR IDENTIDAD";
 }
 
-// --- LÓGICA DE USUARIO Y REGISTRO ÚNICO ---
 async function ejecutarAccion() {
     const u = document.getElementById('user').value.trim().toLowerCase();
     const p = document.getElementById('pass').value.trim();
-    if(!u || !p) return alert("Ingrese sus runas de acceso");
+    if(!u || !p) return alert("Faltan datos de acceso.");
 
-    // Sincronizar antes de validar
     await descargarDeFirebase();
-    let db = JSON.parse(localStorage.getItem('arcana_users')) || [];
+    let users = JSON.parse(localStorage.getItem('arcana_users')) || [];
 
     if(isLogin) {
-        const found = db.find(x => x.user === u && x.pass === p);
-        if(u === "kevin" && p === "upla") {
-            loginOK({name: "Kevin Yeison Ccoñas Gomez", role: "ADMIN"});
-        } else if(found) {
-            loginOK(found);
-        } else {
-            alert("Acceso denegado: Identidad no encontrada.");
-        }
+        const found = users.find(x => x.user === u && x.pass === p);
+        if(u === "kevin" && p === "upla") loginOK({name: "Kevin Yeison Ccoñas Gomez", role: "ADMIN", user: "kevin"});
+        else if(found) loginOK(found);
+        else alert("Identidad no reconocida.");
     } else {
         const n = document.getElementById('full-name').value.trim();
         const r = document.getElementById('reg-role').value;
-        
-        if(!n) return alert("Ingrese su nombre completo");
-        
-        // VALIDACIÓN: Solo un usuario con el mismo nombre
-        if(db.some(x => x.user === u)) {
-            return alert("Error: Esta identidad ya ha sido reclamada por otro usuario.");
-        }
+        if(!n) return alert("Ingrese su nombre real.");
+        if(users.some(x => x.user === u)) return alert("Usuario ya registrado.");
 
-        db.push({user: u, pass: p, name: n, role: r});
-        localStorage.setItem('arcana_users', JSON.stringify(db));
-        
+        users.push({user: u, pass: p, name: n, role: r});
+        localStorage.setItem('arcana_users', JSON.stringify(users));
         await sincronizarConFirebase();
-        alert("Identidad forjada y sincronizada."); 
+        alert("Sincronización completa. Proceda al login.");
         toggleAuth();
     }
 }
@@ -98,26 +81,20 @@ function loginOK(user) {
 }
 
 function abrirPortal(u) {
-    const target = document.getElementById(`inv-${u}`);
-    const isVisible = !target.classList.contains('d-none');
+    currentUnit = u;
     document.querySelectorAll('.internal-interface').forEach(i => i.classList.add('d-none'));
-    if(!isVisible) {
-        target.classList.remove('d-none');
-        currentUnit = u;
-        if(currentUser.role === 'ADMIN') document.getElementById(`admin-zone-${u}`).classList.remove('d-none');
-        renderList(u);
-    }
+    document.getElementById(`inv-${u}`).classList.remove('d-none');
+    if(currentUser.role === 'ADMIN') document.getElementById(`admin-zone-${u}`).classList.remove('d-none');
+    renderList(u);
 }
 
 function setWeek(u, w) {
     activeWeeks[u] = w;
     document.querySelectorAll(`.w-pill-${u}`).forEach(btn => btn.classList.remove('active'));
-    const btn = document.querySelector(`.w-btn-${u}-${w}`);
-    if(btn) btn.classList.add('active');
+    document.querySelector(`.w-btn-${u}-${w}`).classList.add('active');
     renderList(u);
 }
 
-// --- INYECCIÓN Y GUARDADO DE ARCHIVOS ---
 function inyectarDato(u) {
     const fileInput = document.getElementById(`file-${u}`);
     const file = fileInput.files[0];
@@ -126,20 +103,11 @@ function inyectarDato(u) {
     const reader = new FileReader();
     reader.onload = async (e) => {
         let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
-        
-        vault.push({
-            id: Date.now(),
-            unit: u,
-            week: activeWeeks[u],
-            name: file.name,
-            data: e.target.result,
-            owner: currentUser.user
-        });
-        
+        vault.push({ id: Date.now(), unit: u, week: activeWeeks[u], name: file.name, data: e.target.result, owner: currentUser.user });
         localStorage.setItem('arcana_vault', JSON.stringify(vault));
         renderList(u); 
         updateCounters();
-        await sincronizarConFirebase(); 
+        await sincronizarConFirebase();
         fileInput.value = "";
     };
     reader.readAsDataURL(file);
@@ -149,16 +117,14 @@ function renderList(u) {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const filtered = vault.filter(v => v.unit == u && v.week == activeWeeks[u]);
     const container = document.getElementById(`list-${u}`);
-    if(!container) return;
-
-    container.innerHTML = filtered.length ? "" : "<div class='text-center p-3 opacity-25' style='font-size:9px'>VACÍO</div>";
+    container.innerHTML = filtered.length ? "" : "<div style='opacity:0.2; text-align:center; padding:20px;'>NO HAY ARCHIVOS EN ESTE NEXO</div>";
     filtered.forEach(v => {
         container.innerHTML += `
             <div class="file-row">
-                <span>${v.name.substring(0,18)}</span>
-                <div class="d-flex gap-2">
-                    <i class="fa fa-download text-info pointer" onclick="descargar('${v.data}', '${v.name}')"></i>
-                    ${currentUser.role==='ADMIN' ? `<i class="fa fa-trash-alt text-danger pointer" onclick="eliminar(${v.id}, ${u})"></i>` : ''}
+                <span>${v.name}</span>
+                <div>
+                    <i class="fa fa-download text-info pointer" onclick="descargar('${v.data}','${v.name}')"></i>
+                    ${currentUser.role === 'ADMIN' ? `<i class="fa fa-trash-alt text-danger pointer ms-3" onclick="eliminar(${v.id}, ${u})"></i>` : ''}
                 </div>
             </div>`;
     });
@@ -168,60 +134,38 @@ function updateCounters() {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     for(let i=1; i<=4; i++) {
         const count = vault.filter(v => v.unit == i).length;
-        const countElem = document.getElementById(`cnt-${i}`);
-        if(countElem) countElem.innerText = `${count} FRAGMENTOS`;
-        
-        const percent = Math.min((count / 20) * 100, 100);
-        const bar = document.getElementById(`pb-${i}`);
-        if(bar) bar.style.width = percent + "%";
+        const cnt = document.getElementById(`cnt-${i}`);
+        const pb = document.getElementById(`pb-${i}`);
+        if(cnt) cnt.innerText = `${count} FRAGMENTOS`;
+        if(pb) pb.style.width = Math.min((count / 15) * 100, 100) + "%";
     }
-}
-
-function descargar(data, name) {
-    const link = document.createElement('a'); link.href = data; link.download = name; link.click();
 }
 
 async function eliminar(id, u) {
     let vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     vault = vault.filter(v => v.id !== id);
     localStorage.setItem('arcana_vault', JSON.stringify(vault));
-    renderList(u); 
-    updateCounters();
+    renderList(u); updateCounters();
     await sincronizarConFirebase();
 }
 
-function logout() { location.reload(); }
+function descargar(d, n) { const a = document.createElement('a'); a.href = d; a.download = n; a.click(); }
 
-// --- MOTOR SUPREMO DE FIREBASE ---
 async function sincronizarConFirebase() {
     const vault = JSON.parse(localStorage.getItem('arcana_vault')) || [];
     const users = JSON.parse(localStorage.getItem('arcana_users')) || [];
-    const payload = { vault, users };
-
-    try {
-        await fetch(FIREBASE_URL, {
-            method: 'PUT',
-            body: JSON.stringify(payload)
-        });
-    } catch (err) {
-        console.error("Fallo de nexo:", err);
-    }
+    await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify({ vault, users }) });
 }
 
 async function descargarDeFirebase() {
     try {
         const res = await fetch(FIREBASE_URL);
         const data = await res.json();
-        if (data) {
+        if(data) {
             localStorage.setItem('arcana_vault', JSON.stringify(data.vault || []));
             localStorage.setItem('arcana_users', JSON.stringify(data.users || []));
-            
-            if (currentUser) {
-                updateCounters();
-                if (currentUnit) renderList(currentUnit);
-            }
         }
-    } catch (err) {
-        console.log("Modo local.");
-    }
+    } catch(e) { console.error("Error de descarga."); }
 }
+
+function logout() { location.reload(); }
