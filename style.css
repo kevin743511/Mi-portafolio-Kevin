@@ -1,63 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syncopate:wght@700&display=swap');
+:root { --neon: #00f2ff; --bg: #000; --panel: rgba(0, 242, 255, 0.05); }
+body { background: var(--bg); color: #fff; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
+canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-:root {
-    --blue: #00f2ff; --purple: #bc13fe; --red: #ff3131; --cyan: #00ffaa; --bg: #030305;
-}
+.container { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.d-none { display: none !important; }
 
-body { background: var(--bg); color: #fff; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
+/* AUTH */
+.auth-box { background: var(--panel); border: 1px solid var(--neon); padding: 40px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); text-align: center; }
+input, select { background: rgba(0,0,0,0.8); border: 1px solid var(--neon); color: #fff; padding: 12px; margin: 8px 0; width: 280px; }
+button { background: var(--neon); color: #000; border: none; padding: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
+button:hover { box-shadow: 0 0 15px var(--neon); }
 
-#canvas-particles { position: fixed; inset: 0; z-index: -1; opacity: 0.6; }
+/* GRID MÓDULOS */
+.grid-modules { display: flex; gap: 20px; margin-top: 30px; }
+.module-card { background: var(--panel); border: 1px solid rgba(0, 242, 255, 0.2); padding: 30px; width: 180px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
+.module-card:hover { border-color: var(--neon); transform: translateY(-5px); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
 
-/* Loader */
-.arcana-loader { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.loader-circle { width: 50px; height: 50px; border: 2px solid var(--blue); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; box-shadow: 0 0 20px var(--blue); }
+.orb { width: 70px; height: 70px; border: 1px dashed var(--neon); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 10px; animation: rotate 10s linear infinite; }
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* Login Estilo Terminal */
-.nexus-wrapper { height: 100vh; display: flex; align-items: center; justify-content: center; }
-.arcana-terminal { background: rgba(10,10,20,0.9); padding: 50px; border: 1px solid rgba(0,242,255,0.1); width: 450px; border-radius: 5px; backdrop-filter: blur(15px); box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-.arcana-glitch { font-family: 'Syncopate'; text-align: center; color: #fff; text-shadow: 2px 0 var(--red), -2px 0 var(--blue); }
+.progress-bar { background: rgba(255,255,255,0.1); height: 3px; width: 100%; margin-top: 15px; border-radius: 2px; }
+.fill { background: var(--neon); height: 100%; width: 0%; transition: 1s ease-in-out; }
 
-.arcana-field { position: relative; margin-top: 25px; }
-.arcana-field input, .arcana-field select { width: 100%; background: transparent; border: none; border-bottom: 1px solid #222; padding: 10px 0; color: #fff; outline: none; transition: 0.3s; }
-.arcana-field label { position: absolute; left: 0; top: 10px; color: #444; pointer-events: none; transition: 0.3s; }
-.arcana-field input:focus ~ label, .arcana-field input:valid ~ label { top: -15px; font-size: 10px; color: var(--blue); letter-spacing: 2px; }
-.arcana-field input:focus { border-bottom-color: var(--blue); }
+/* INTERFAZ INTERNA */
+.internal-interface { width: 800px; background: rgba(0,0,0,0.8); border: 1px solid var(--neon); padding: 20px; margin-top: 20px; border-radius: 5px; }
+.weeks-nav { display: flex; gap: 10px; margin-bottom: 20px; }
+.w-pill { background: transparent; border: 1px solid var(--neon); color: var(--neon); width: 50px; padding: 5px; font-size: 11px; }
+.w-pill.active { background: var(--neon); color: #000; }
 
-.btn-arcana { width: 100%; background: transparent; border: 1px solid var(--blue); color: var(--blue); padding: 15px; font-weight: bold; letter-spacing: 3px; transition: 0.4s; position: relative; overflow: hidden; }
-.btn-arcana:hover { background: var(--blue); color: #000; box-shadow: 0 0 30px var(--blue); }
-
-/* Portales Dinámicos */
-.void-portal-card { background: rgba(15,15,25,0.7); padding: 30px; border-radius: 15px; border: 1px solid #111; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.void-portal-card:hover { border-color: var(--blue); transform: translateY(-10px); }
-
-.portal-core { width: 140px; height: 140px; margin: 0 auto 25px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.portal-ring { position: absolute; border-radius: 50%; border: 1px dashed var(--blue); opacity: 0.3; }
-.ring-1 { width: 100%; height: 100%; animation: spin 12s linear infinite; }
-.ring-2 { width: 80%; height: 80%; animation: spin 8s linear reverse infinite; border-color: white; }
-
-.portal-energy { width: 40px; height: 40px; border-radius: 50%; filter: blur(15px); animation: energy-pulse 2s infinite; }
-@keyframes energy-pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.4); opacity: 1; } }
-
-.core-blue .portal-energy { background: var(--blue); box-shadow: 0 0 20px var(--blue); }
-.core-purple .portal-energy { background: var(--purple); box-shadow: 0 0 20px var(--purple); }
-.core-cyan .portal-energy { background: var(--cyan); box-shadow: 0 0 20px var(--cyan); }
-.core-red .portal-energy { background: var(--red); box-shadow: 0 0 20px var(--red); }
-
-.portal-label { position: absolute; font-size: 9px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 5px #000; }
-
-/* Progress Bar Arcano */
-.progress-arcana { height: 2px; background: #111; width: 100%; margin-top: 10px; border-radius: 5px; overflow: hidden; }
-.p-bar { height: 100%; background: var(--blue); width: 0%; transition: 1s ease; box-shadow: 0 0 10px var(--blue); }
-
-/* Semanas y UI Interna */
-.week-pill-container { display: flex; justify-content: space-between; gap: 5px; margin-top: 20px; }
-.w-pill { flex: 1; background: #000; border: 1px solid #222; color: #444; font-size: 10px; padding: 8px 0; border-radius: 3px; transition: 0.3s; }
-.w-pill.active { border-color: var(--blue); color: var(--blue); background: rgba(0, 242, 255, 0.05); box-shadow: inset 0 0 10px rgba(0, 242, 255, 0.1); }
-
-.btn-upload { display: block; width: 100%; padding: 10px; border: 1px dashed var(--blue); color: var(--blue); font-size: 10px; text-align: center; cursor: pointer; transition: 0.3s; }
-.btn-upload:hover { background: rgba(0, 242, 255, 0.1); }
-
-.arcana-list { max-height: 120px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--blue) #000; }
-.file-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 5px; border-radius: 4px; font-size: 10px; border-left: 2px solid var(--blue); }
-
-@keyframes spin { to { transform: rotate(360deg); } }
+.file-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid rgba(0, 242, 255, 0.1); margin-bottom: 5px; background: rgba(0, 242, 255, 0.02); }
+.pointer { cursor: pointer; }
