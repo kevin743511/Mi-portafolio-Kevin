@@ -3,99 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OS.ARCANA - Portafolio Cinemático</title>
+    <title>OS.ARCANA - DRAGON PORTAL</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="loader"><span>INICIALIZANDO NÚCLEO...</span></div>
+    <div id="loader"><span>CANALIZANDO ENERGÍA...</span></div>
+    
+    <div class="void-dome"></div>
     <canvas id="canvas-particles"></canvas>
 
     <div id="auth-section" class="container">
-        <h1 class="glitch" data-text="OS.ARCANA">OS.ARCANA</h1>
-        <div class="auth-box">
-            <div id="reg-fields" class="d-none">
-                <input type="text" id="full-name" placeholder="NOMBRE COMPLETO">
-                <select id="reg-role">
-                    <option value="ESTUDIANTE">ESTUDIANTE</option>
-                    <option value="ADMIN">ADMINISTRADOR</option>
-                </select>
+        <div class="dragon-frame">
+            <h1 class="arcana-title">OS.ARCANA</h1>
+            <div class="auth-box fire-border">
+                <div id="reg-fields" class="d-none animate-fuego">
+                    <input type="text" id="full-name" placeholder="NOMBRE DEL HÉROE">
+                    <select id="reg-role">
+                        <option value="ESTUDIANTE">ESTUDIANTE</option>
+                        <option value="ADMIN">ELDER WARDEN</option>
+                    </select>
+                </div>
+                <div class="input-glow">
+                    <input type="text" id="user" placeholder="USUARIO">
+                    <input type="password" id="pass" placeholder="PASSWORD">
+                </div>
+                <button id="main-btn" onclick="ejecutarAccion()">INVOCAR NÚCLEO</button>
+                <p onclick="toggleAuth()" class="auth-link">¿CAMBIAR PROTOCOLO DE ACCESO?</p>
             </div>
-            <div class="input-group">
-                <input type="text" id="user" placeholder="ID DE USUARIO">
-                <input type="password" id="pass" placeholder="CONTRASEÑA">
-            </div>
-            <button id="main-btn" onclick="ejecutarAccion()">INICIAR NÚCLEO</button>
-            <p onclick="toggleAuth()" class="auth-toggle">INTERCAMBIAR PROTOCOLO (LOGIN/REGISTRO)</p>
         </div>
     </div>
 
     <div id="portfolio-section" class="container d-none">
-        <nav class="glass-nav">
-            <div class="user-profile">
-                <div class="avatar"></div>
-                <div class="info">
-                    <span id="nav-username">USUARIO</span>
-                    <small id="nav-role">SISTEMA</small>
-                </div>
+        <nav class="void-nav">
+            <div class="user-status">
+                <div class="status-orb"></div>
+                <span id="nav-username">KEVIN</span>
+                <small id="nav-role">ADMIN</small>
             </div>
-            <button class="btn-logout" onclick="logout()"><i class="fa fa-power-off"></i></button>
+            <button class="btn-exit" onclick="logout()"><i class="fa fa-power-off"></i></button>
         </nav>
 
         <div class="grid-modules">
-            <div class="module-card" id="card-1" onclick="abrirPortal(1)">
-                <div class="orb"><span>MOD_1</span></div>
+            <div class="module-card portal-dragon" onclick="abrirPortal(1)">
+                <div class="flame-container">
+                    <div class="orb"><span>MOD_1</span></div>
+                </div>
                 <h3>UNIDAD I</h3>
                 <p id="cnt-1">0 FRAGMENTOS</p>
-                <div class="progress-bar"><div id="pb-1" class="fill"></div></div>
+                <div class="mana-bar"><div id="pb-1" class="mana-fill"></div></div>
             </div>
-            <div class="module-card" id="card-2" onclick="abrirPortal(2)">
-                <div class="orb orb-purple"><span>MOD_2</span></div>
+            <div class="module-card portal-dragon purple-flame" onclick="abrirPortal(2)">
+                <div class="flame-container">
+                    <div class="orb"><span>MOD_2</span></div>
+                </div>
                 <h3>UNIDAD II</h3>
                 <p id="cnt-2">0 FRAGMENTOS</p>
-                <div class="progress-bar"><div id="pb-2" class="fill"></div></div>
+                <div class="mana-bar"><div id="pb-2" class="mana-fill"></div></div>
             </div>
-            <div class="module-card" id="card-3" onclick="abrirPortal(3)">
-                <div class="orb orb-green"><span>MOD_3</span></div>
+            <div class="module-card portal-dragon green-flame" onclick="abrirPortal(3)">
+                <div class="flame-container">
+                    <div class="orb"><span>MOD_3</span></div>
+                </div>
                 <h3>UNIDAD III</h3>
                 <p id="cnt-3">0 FRAGMENTOS</p>
-                <div class="progress-bar"><div id="pb-3" class="fill"></div></div>
+                <div class="mana-bar"><div id="pb-3" class="mana-fill"></div></div>
             </div>
-            <div class="module-card" id="card-4" onclick="abrirPortal(4)">
-                <div class="orb orb-red"><span>MOD_4</span></div>
+            <div class="module-card portal-dragon red-flame" onclick="abrirPortal(4)">
+                <div class="flame-container">
+                    <div class="orb"><span>MOD_4</span></div>
+                </div>
                 <h3>UNIDAD IV</h3>
                 <p id="cnt-4">0 FRAGMENTOS</p>
-                <div class="progress-bar"><div id="pb-4" class="fill"></div></div>
+                <div class="mana-bar"><div id="pb-4" class="mana-fill"></div></div>
             </div>
         </div>
 
-        <div id="portal-overlay" class="portal-overlay d-none">
-            <div class="portal-content">
-                <div class="portal-header">
-                    <h2 id="portal-title">UNIDAD N</h2>
-                    <button onclick="cerrarPortal()" class="btn-close">&times;</button>
+        <div id="vault-modal" class="modal d-none">
+            <div class="modal-content chrono-effect">
+                <div class="modal-header">
+                    <h2 id="modal-title">FRAGMENTOS</h2>
+                    <button onclick="cerrarPortal()" class="close-vault">&times;</button>
                 </div>
-                
-                <div class="weeks-bar">
-                    <button class="w-btn active" id="w1-btn" onclick="setWeek(1)">W1</button>
-                    <button class="w-btn" id="w2-btn" onclick="setWeek(2)">W2</button>
-                    <button class="w-btn" id="w3-btn" onclick="setWeek(3)">W3</button>
-                    <button class="w-btn" id="w4-btn" onclick="setWeek(4)">W4</button>
+                <div class="week-selector">
+                    <button class="w-btn" id="w1" onclick="setWeek(1)">SEMANA 1</button>
+                    <button class="w-btn" id="w2" onclick="setWeek(2)">SEMANA 2</button>
+                    <button class="w-btn" id="w3" onclick="setWeek(3)">SEMANA 3</button>
+                    <button class="w-btn" id="w4" onclick="setWeek(4)">SEMANA 4</button>
                 </div>
-
-                <div id="admin-controls" class="admin-zone d-none">
-                    <input type="file" id="file-input" class="d-none" onchange="inyectarDato()">
-                    <button onclick="document.getElementById('file-input').click()" class="btn-upload">
-                        <i class="fa fa-plus"></i> INYECTAR FRAGMENTO
-                    </button>
+                <div id="admin-actions" class="d-none">
+                    <input type="file" id="file-upload" class="d-none" onchange="inyectarDato()">
+                    <button class="btn-inject" onclick="document.getElementById('file-upload').click()">+ INYECTAR DATOS</button>
                 </div>
-
-                <div id="file-list" class="file-grid">
-                    </div>
+                <div id="file-list" class="arcana-list"></div>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
