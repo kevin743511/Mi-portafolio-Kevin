@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OS.ARCANA — UPLA Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+
+<!-- ════ LOGIN ════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-wrapper">
+    <div class="arcana-logo">
+      <h1>OS.ARCANA</h1>
+      <div class="subtitle">◆ UPLA EDITION ◆</div>
+    </div>
+
+    <div class="fire-container">
+      <div class="fire-border">
+        <div class="login-box">
+          <div class="tab-selector">
+            <button class="tab-btn active" onclick="switchAuthTab('login')">⚔ ACCEDER</button>
+            <button class="tab-btn" onclick="switchAuthTab('register')">✦ REGISTRAR</button>
+          </div>
+
+          <!-- LOGIN -->
+          <div id="loginForm">
+            <div class="form-group">
+              <label>▸ Nombre de Héroe</label>
+              <input type="text" id="loginUser" placeholder="hero_name" autocomplete="username">
+            </div>
+            <div class="form-group">
+              <label>▸ Clave de Fragmento</label>
+              <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <div class="error-msg" id="loginError"></div>
+            <br>
+            <button class="btn-arcana" onclick="handleLogin()">⚡ INVOCAR ACCESO</button>
+          </div>
+
+          <!-- REGISTER -->
+          <div id="registerForm" style="display:none">
+            <div class="form-group">
+              <label>▸ Tipo de Invocador</label>
+              <div class="role-cards">
+                <div class="role-card selected-viewer" id="rcViewer" onclick="selectRole('viewer')">
+                  <div class="rc-icon">👁</div>
+                  <div class="rc-name">VISUALIZADOR</div>
+                  <div class="rc-desc">Ver y descargar archivos</div>
+                </div>
+                <div class="role-card" id="rcAdmin" onclick="selectRole('admin_attempt')" style="opacity:.35;cursor:not-allowed;">
+                  <div class="rc-icon">♛</div>
+                  <div class="rc-name">ADMINISTRADOR</div>
+                  <div class="rc-desc">Rol único · Ya asignado</div>
+                </div>
+              </div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:rgba(255,200,0,.55);margin-top:5px;letter-spacing:1px;">
+                ♛ Solo existe un Administrador en el Arcana
+              </div>
+            </div>
+            <div class="form-group">
+              <label>▸ Nombre de Héroe</label>
+              <input type="text" id="regUser" placeholder="nuevo_heroe" autocomplete="username">
+            </div>
+            <div class="form-group">
+              <label>▸ Clave de Fragmento</label>
+              <input type="password" id="regPass" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label>▸ Confirmar Clave</label>
+              <input type="password" id="regPass2" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <div class="error-msg" id="registerError"></div>
+            <button class="btn-arcana" onclick="handleRegister()">👁 FORJAR VISUALIZADOR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--text-dim);letter-spacing:4px;opacity:.35;">◇ CHRONOSPHERE PROTOCOL v4.2 ◇</div>
+  </div>
+</div>
+
+<!-- ════ MAIN ════ -->
+<div id="mainScreen" class="screen">
+  <div style="width:100%;height:100%;overflow-y:auto;">
+    <header class="main-header">
+      <div class="header-logo">OS.ARCANA</div>
+      <div class="header-right">
+        <span class="sync-indicator" id="syncIndicator" style="display:none"></span>
+        <button class="btn-hdr btn-hdr-share" id="btnShare" onclick="openShareModal()" style="display:none">⬡ COMPARTIR</button>
+        <button class="btn-hdr btn-hdr-sync" id="btnSync" onclick="doViewerSync()" style="display:none">☁ SYNC</button>
+        <button class="btn-hdr btn-hdr-import" id="btnImport" onclick="document.getElementById('importFileInput').click()" style="display:none">📂 IMPORTAR</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importJsonFile(event)">
+        <div class="user-badge" id="userBadge">
+          <span id="headerCrown"></span>
+          <span id="headerUsername">VOID</span>
+        </div>
+        <button class="btn-hdr btn-logout" onclick="handleLogout()">SALIR</button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <div class="section-title">CRÓNICAS DEL TIEMPO DETENIDO</div>
+      <div class="units-grid" id="unitsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ UNIT MODAL ════ -->
+<div class="modal-overlay" id="unitModal">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-dome-mini" id="modalDomeMini">I</div>
+        <div>
+          <div class="modal-title" id="modalTitle">UNIDAD I</div>
+          <div style="font-size:.66rem;color:var(--text-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;" id="modalSub">FRAGMENTOS</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="week-tabs" id="weekTabs">
+      <button class="week-tab active" onclick="switchWeek(1)">◈ W1</button>
+      <button class="week-tab" onclick="switchWeek(2)">◈ W2</button>
+      <button class="week-tab" onclick="switchWeek(3)">◈ W3</button>
+      <button class="week-tab" onclick="switchWeek(4)">◈ W4</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ════ EDIT MODAL ════ -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-box">
+    <h3>✦ EDITAR FRAGMENTO</h3>
+    <div class="form-group">
+      <label>Nombre del Archivo</label>
+      <input type="text" id="editFileName" placeholder="nombre_archivo.ext">
+    </div>
+    <div class="form-group">
+      <label>Descripción (opcional)</label>
+      <textarea id="editFileDesc" placeholder="Descripción del fragmento..."></textarea>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-save" onclick="saveEdit()">💾 GUARDAR</button>
+      <button class="btn-cancel" onclick="closeEdit()">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SHARE MODAL ════ -->
+<div class="share-overlay" id="shareOverlay">
+  <div class="share-box">
+    <h3>⬡ COMPARTIR ARCANA</h3>
+    <p>Sincroniza tus fragmentos a la nube y comparte el acceso con Visualizadores.</p>
+
+    <div class="status-line" id="shareStatusLine"></div>
+
+    <!-- EXPORT section (admin) -->
+    <div class="share-section s-admin">
+      <h4>♛ ADMINISTRADOR — EXPORTAR DATOS</h4>
+      <button class="btn-push" onclick="pushToCloud()">☁ SUBIR DATOS A LA NUBE</button>
+      <button class="btn-push btn-push-blue" onclick="exportJsonDownload()">📦 DESCARGAR BACKUP JSON</button>
+      <div id="blobResultSection" style="display:none;margin-top:8px;">
+        <div class="share-steps" style="margin-bottom:8px;">
+          <strong>BLOB ID</strong> (comparte con el Visualizador):
+        </div>
+        <div class="url-row">
+          <input type="text" id="blobIdDisplay" readonly>
+          <button class="btn-copy btn-copy-gold" onclick="copyField('blobIdDisplay')">📋</button>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--unit3-color);letter-spacing:1px;">✓ Datos en la nube. El Visualizador necesita este Blob ID.</div>
+      </div>
+    </div>
+
+    <!-- HOW TO SHARE section -->
+    <div class="share-section s-viewer">
+      <h4>👁 INSTRUCCIONES PARA VISUALIZADOR</h4>
+      <div class="share-steps">
+        1. Comparte el archivo <strong>os_arcana_upla.html</strong> o pásalo por drive/USB.<br>
+        2. El compañero lo abre en su navegador y se <strong>registra como Visualizador</strong>.<br>
+        3. Comparte el <strong>BLOB ID</strong> con él.<br>
+        4. En su panel hace clic en <strong>☁ SYNC</strong> e ingresa el Blob ID.<br>
+        5. También puede hacer clic en <strong>📂 IMPORTAR</strong> para cargar un backup JSON.
+      </div>
+    </div>
+
+    <button class="btn-close-share" onclick="closeShareModal()">CERRAR</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
