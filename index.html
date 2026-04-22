@@ -94,8 +94,7 @@
         <span class="sync-indicator" id="syncIndicator" style="display:none"></span>
         <button class="btn-hdr btn-hdr-share" id="btnShare" onclick="openShareModal()" style="display:none">⬡ COMPARTIR</button>
         <button class="btn-hdr btn-hdr-sync" id="btnSync" onclick="doViewerSync()" style="display:none">☁ SYNC</button>
-        <button class="btn-hdr btn-hdr-import" id="btnImport" onclick="document.getElementById('importFileInput').click()" style="display:none">📂 IMPORTAR</button>
-        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importJsonFile(event)">
+        <button class="btn-hdr btn-hdr-import" id="btnImport" style="display:none">📂 IMPORTAR</button>
         <div class="user-badge" id="userBadge">
           <span id="headerCrown"></span>
           <span id="headerUsername">VOID</span>
@@ -157,36 +156,22 @@
 <div class="share-overlay" id="shareOverlay">
   <div class="share-box">
     <h3>⬡ COMPARTIR ARCANA</h3>
-    <p>Sincroniza tus fragmentos a la nube y comparte el acceso con Visualizadores.</p>
+    <p>Los archivos se sincronizan automáticamente desde Supabase. Comparte la URL de la web con los Visualizadores.</p>
 
     <div class="status-line" id="shareStatusLine"></div>
 
-    <!-- EXPORT section (admin) -->
     <div class="share-section s-admin">
-      <h4>♛ ADMINISTRADOR — EXPORTAR DATOS</h4>
-      <button class="btn-push" onclick="pushToCloud()">☁ SUBIR DATOS A LA NUBE</button>
+      <h4>♛ ADMINISTRADOR — BACKUP</h4>
       <button class="btn-push btn-push-blue" onclick="exportJsonDownload()">📦 DESCARGAR BACKUP JSON</button>
-      <div id="blobResultSection" style="display:none;margin-top:8px;">
-        <div class="share-steps" style="margin-bottom:8px;">
-          <strong>BLOB ID</strong> (comparte con el Visualizador):
-        </div>
-        <div class="url-row">
-          <input type="text" id="blobIdDisplay" readonly>
-          <button class="btn-copy btn-copy-gold" onclick="copyField('blobIdDisplay')">📋</button>
-        </div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--unit3-color);letter-spacing:1px;">✓ Datos en la nube. El Visualizador necesita este Blob ID.</div>
-      </div>
     </div>
 
-    <!-- HOW TO SHARE section -->
     <div class="share-section s-viewer">
       <h4>👁 INSTRUCCIONES PARA VISUALIZADOR</h4>
       <div class="share-steps">
-        1. Comparte el archivo <strong>os_arcana_upla.html</strong> o pásalo por drive/USB.<br>
-        2. El compañero lo abre en su navegador y se <strong>registra como Visualizador</strong>.<br>
-        3. Comparte el <strong>BLOB ID</strong> con él.<br>
-        4. En su panel hace clic en <strong>☁ SYNC</strong> e ingresa el Blob ID.<br>
-        5. También puede hacer clic en <strong>📂 IMPORTAR</strong> para cargar un backup JSON.
+        1. Comparte el enlace de GitHub Pages con tus compañeros.<br>
+        2. Se <strong>registran como Visualizador</strong> con un nombre y contraseña.<br>
+        3. Los archivos se cargan <strong>automáticamente</strong> desde la nube.<br>
+        4. Pueden hacer clic en <strong>☁ SYNC</strong> para refrescar en cualquier momento.
       </div>
     </div>
 
@@ -196,6 +181,8 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
 </html>

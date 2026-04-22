@@ -1,4 +1,11 @@
 // ════════════════════════════════════════════
+// SUPABASE CONFIG
+// ════════════════════════════════════════════
+const SUPABASE_URL = 'https://kdsfvnwrhtlfryqlrhya.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Tzr847YIW5vuNjvWBXAL7w_iUbRgtyN';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ════════════════════════════════════════════
 // PARTICLES
 // ════════════════════════════════════════════
 const canvas = document.getElementById('particleCanvas');
@@ -25,34 +32,20 @@ function mkP() {
     c: Math.random() > .5 ? 'rgba(0,212,255,' : 'rgba(0,150,255,'
   };
 }
-
-for (let i = 0; i < 120; i++) {
-  const p = mkP();
-  p.ml = p.life;
-  particles.push(p);
-}
+for (let i = 0; i < 120; i++) { const p = mkP(); p.ml = p.life; particles.push(p); }
 
 function animP() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   particles.forEach((p, i) => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
+    p.x += p.vx; p.y += p.vy; p.life--;
     const a = (p.life / p.ml) * p.al;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2);
-    ctx.fillStyle = p.c + a + ')';
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2);
+    ctx.fillStyle = p.c + a + ')'; ctx.fill();
     if (p.sz > 1.5) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.sz * 3, 0, Math.PI * 2);
-      ctx.fillStyle = p.c + (a * .11) + ')';
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.sz * 3, 0, Math.PI * 2);
+      ctx.fillStyle = p.c + (a * .11) + ')'; ctx.fill();
     }
-    if (p.life <= 0) {
-      particles[i] = mkP();
-      particles[i].ml = particles[i].life;
-    }
+    if (p.life <= 0) { particles[i] = mkP(); particles[i].ml = particles[i].life; }
   });
   requestAnimationFrame(animP);
 }
@@ -62,16 +55,15 @@ animP();
 // STATE
 // ════════════════════════════════════════════
 const ADMIN = { user: 'kevin', pass: 'upla' };
-const BLOB_API = 'https://jsonblob.com/api/jsonBlob';
 
-function getState() {
-  return JSON.parse(localStorage.getItem('arcana_v3') || JSON.stringify({
-    users: [], currentUser: null, isAdmin: false, isViewer: false,
-    files: {}, blobId: null
-  }));
-}
-function saveState(s) { localStorage.setItem('arcana_v3', JSON.stringify(s)); }
-let state = getState();
+// Estado en memoria (ya no depende de localStorage para archivos)
+let state = {
+  currentUser: localStorage.getItem('arcana_user') || null,
+  isAdmin: localStorage.getItem('arcana_role') === 'admin',
+  isViewer: localStorage.getItem('arcana_role') === 'viewer',
+  files: {}
+};
+
 let currentUnit = 1, currentWeek = 1, editingFileId = null;
 
 // ════════════════════════════════════════════
@@ -86,25 +78,44 @@ function switchAuthTab(tab) {
 }
 
 function selectRole(r) {
-  if (r === 'admin_attempt') { showToast('♛ El rol Administrador es único y ya está asignado', 'tw'); return; }
+  if (r === 'admin_attempt') { showToast('♛ El rol Administrador es único y ya está asignado', 'tw'); }
 }
 
-function handleLogin() {
+async function handleLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
   const err = document.getElementById('loginError');
   if (!u || !p) { err.textContent = '⚠ Completa los campos'; return; }
+
+  // Admin hardcodeado
   if (u === ADMIN.user && p === ADMIN.pass) {
+    localStorage.setItem('arcana_user', u);
+    localStorage.setItem('arcana_role', 'admin');
     state.currentUser = u; state.isAdmin = true; state.isViewer = false;
-    saveState(state); enterMain();
+    enterMain();
+    return;
+  }
+
+  // Buscar en Supabase
+  err.textContent = '⟳ Verificando...';
+  const { data, error } = await sb
+    .from('users')
+    .select('*')
+    .eq('username', u)
+    .eq('password', p)
+    .single();
+
+  if (error || !data) {
+    err.textContent = '✕ Héroe no reconocido en el Arcana';
   } else {
-    const found = state.users.find(x => x.user === u && x.pass === p);
-    if (found) { state.currentUser = u; state.isAdmin = false; state.isViewer = true; saveState(state); enterMain(); }
-    else { err.textContent = '✕ Héroe no reconocido en el Arcana'; }
+    localStorage.setItem('arcana_user', u);
+    localStorage.setItem('arcana_role', 'viewer');
+    state.currentUser = u; state.isAdmin = false; state.isViewer = true;
+    enterMain();
   }
 }
 
-function handleRegister() {
+async function handleRegister() {
   const u = document.getElementById('regUser').value.trim();
   const p = document.getElementById('regPass').value;
   const p2 = document.getElementById('regPass2').value;
@@ -112,25 +123,32 @@ function handleRegister() {
   if (!u || !p) { err.textContent = '⚠ Completa todos los campos'; return; }
   if (p !== p2) { err.textContent = '✕ Las claves no coinciden'; return; }
   if (u === ADMIN.user) { err.textContent = '✕ Nombre reservado del Void'; return; }
-  if (state.users.find(x => x.user === u)) { err.textContent = '✕ Héroe ya existe'; return; }
-  state.users.push({ user: u, pass: p, role: 'viewer' });
-  saveState(state);
-  showToast('✦ Visualizador forjado. ¡Ya puedes acceder!');
-  switchAuthTab('login');
-  document.getElementById('loginUser').value = u;
-  err.textContent = '';
+
+  err.textContent = '⟳ Forjando héroe...';
+  const { error } = await sb.from('users').insert({ username: u, password: p, role: 'viewer' });
+
+  if (error) {
+    if (error.code === '23505') err.textContent = '✕ Héroe ya existe';
+    else err.textContent = '✕ Error: ' + error.message;
+  } else {
+    showToast('✦ Visualizador forjado. ¡Ya puedes acceder!');
+    switchAuthTab('login');
+    document.getElementById('loginUser').value = u;
+    err.textContent = '';
+  }
 }
 
 function handleLogout() {
-  state.currentUser = null; state.isAdmin = false; state.isViewer = false;
-  saveState(state);
+  localStorage.removeItem('arcana_user');
+  localStorage.removeItem('arcana_role');
+  state.currentUser = null; state.isAdmin = false; state.isViewer = false; state.files = {};
   document.getElementById('mainScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
   ['loginUser', 'loginPass'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('loginError').textContent = '';
 }
 
-function enterMain() {
+async function enterMain() {
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('mainScreen').classList.add('active');
   document.getElementById('headerUsername').textContent = state.currentUser.toUpperCase();
@@ -144,14 +162,58 @@ function enterMain() {
   } else {
     badge.className = 'user-badge badge-viewer'; crown.textContent = '👁 ';
     document.getElementById('btnShare').style.display = 'none';
-    document.getElementById('btnSync').style.display = '';
-    document.getElementById('btnImport').style.display = '';
+    document.getElementById('btnSync').style.display = 'none';
+    document.getElementById('btnImport').style.display = 'none';
   }
+  setSyncStatus('ing', 'CARGANDO...');
+  await loadAllFiles();
   renderUnits();
-  if (state.isViewer && state.blobId) {
-    setSyncStatus('ing', 'CARGANDO...');
-    loadFromCloud(state.blobId);
-  }
+}
+
+// ════════════════════════════════════════════
+// SUPABASE — CARGAR Y GUARDAR ARCHIVOS
+// ════════════════════════════════════════════
+async function loadAllFiles() {
+  const { data, error } = await sb.from('files').select('*');
+  if (error) { setSyncStatus('err', 'ERROR BD'); showToast('✕ Error cargando archivos', 'te'); return; }
+  state.files = {};
+  (data || []).forEach(f => {
+    const key = `u${f.unit}_w${f.week}`;
+    if (!state.files[key]) state.files[key] = [];
+    state.files[key].push({
+      id: f.id,
+      name: f.name,
+      desc: f.description || '',
+      data: f.data,
+      size: f.size,
+      date: f.upload_date
+    });
+  });
+  setSyncStatus('ok', '✓ SINCRONIZADO');
+}
+
+async function saveFileToDB(fileObj, unit, week) {
+  const { error } = await sb.from('files').insert({
+    id: fileObj.id,
+    unit: unit,
+    week: week,
+    name: fileObj.name,
+    description: fileObj.desc || '',
+    data: fileObj.data,
+    size: fileObj.size,
+    upload_date: fileObj.date
+  });
+  if (error) throw error;
+}
+
+async function deleteFileFromDB(id) {
+  const { error } = await sb.from('files').delete().eq('id', id);
+  if (error) throw error;
+}
+
+async function updateFileInDB(id, name, desc) {
+  const { error } = await sb.from('files').update({ name, description: desc }).eq('id', id);
+  if (error) throw error;
 }
 
 // ════════════════════════════════════════════
@@ -269,7 +331,6 @@ function renderWeekContent() {
   html += `</div>`;
   body.innerHTML = html;
 
-  // Drag & drop
   const zone = document.getElementById('uploadZone');
   if (zone) {
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
@@ -279,17 +340,17 @@ function renderWeekContent() {
 }
 
 function esc(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function getFileIcon(e) {
   const m = {
-    pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', ppt: '📋', pptx: '📋',
-    jpg: '🖼', jpeg: '🖼', png: '🖼', gif: '🖼', svg: '🎨', bmp: '🖼',
-    mp4: '🎬', avi: '🎬', mkv: '🎬', mp3: '🎵', wav: '🎵',
-    zip: '📦', rar: '📦', '7z': '📦', txt: '📃', md: '📃',
-    js: '⚙', py: '🐍', html: '🌐', css: '🎨', json: '📋', xml: '📋',
-    csv: '📊', c: '⚙', cpp: '⚙', java: '☕'
+    pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',ppt:'📋',pptx:'📋',
+    jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',svg:'🎨',bmp:'🖼',
+    mp4:'🎬',avi:'🎬',mkv:'🎬',mp3:'🎵',wav:'🎵',
+    zip:'📦',rar:'📦','7z':'📦',txt:'📃',md:'📃',
+    js:'⚙',py:'🐍',html:'🌐',css:'🎨',json:'📋',xml:'📋',
+    csv:'📊',c:'⚙',cpp:'⚙',java:'☕'
   };
   return m[e] || '📁';
 }
@@ -299,66 +360,85 @@ function getFileIcon(e) {
 // ════════════════════════════════════════════
 function handleFileUpload(e) { handleFilesFromList(e.target.files); }
 
-function handleFilesFromList(fileList) {
+async function handleFilesFromList(fileList) {
   if (!state.isAdmin) return;
   const key = `u${currentUnit}_w${currentWeek}`;
   if (!state.files[key]) state.files[key] = [];
   const arr = Array.from(fileList);
   if (!arr.length) return;
-  let done = 0;
+
   const pw = document.getElementById('progressWrap');
   const pf = document.getElementById('progressFill');
   const pl = document.getElementById('progressLbl');
   if (pw) pw.style.display = 'block';
 
-  arr.forEach((file, fi) => {
-    const reader = new FileReader();
-    reader.onprogress = ev => {
-      if (ev.lengthComputable && pf) {
-        const pct = Math.round(((fi + ev.loaded / ev.total) / arr.length) * 100);
-        pf.style.width = pct + '%';
-      }
-    };
-    reader.onload = ev => {
-      state.files[key].push({
+  let done = 0;
+  for (let fi = 0; fi < arr.length; fi++) {
+    const file = arr[fi];
+    if (pl) pl.textContent = `INYECTANDO ${fi + 1}/${arr.length}...`;
+    if (pf) pf.style.width = Math.round(((fi + 0.5) / arr.length) * 100) + '%';
+
+    try {
+      const data = await readFileAsDataURL(file);
+      const fileObj = {
         id: 'f' + Date.now() + Math.random().toString(36).substr(2, 5),
-        name: file.name, desc: '',
-        data: ev.target.result,
+        name: file.name,
+        desc: '',
+        data: data,
         size: fmtSize(file.size),
         date: new Date().toLocaleDateString('es-PE')
-      });
+      };
+      await saveFileToDB(fileObj, currentUnit, currentWeek);
+      state.files[key].push(fileObj);
       done++;
-      if (pl) pl.textContent = `INYECTANDO ${done}/${arr.length}...`;
-      if (done === arr.length) {
-        saveState(state);
-        if (pw) pw.style.display = 'none';
-        renderWeekContent();
-        showToast(`✦ ${done} fragmento${done > 1 ? 's' : ''} inyectado${done > 1 ? 's' : ''}`);
-      }
-    };
+      if (pf) pf.style.width = Math.round(((fi + 1) / arr.length) * 100) + '%';
+    } catch (err) {
+      showToast('✕ Error subiendo: ' + file.name, 'te');
+    }
+  }
+
+  if (pw) pw.style.display = 'none';
+  renderWeekContent();
+  renderUnits();
+  if (done > 0) showToast(`✦ ${done} fragmento${done > 1 ? 's' : ''} inyectado${done > 1 ? 's' : ''}`);
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
 function downloadFile(id) {
-  const f = (state.files[`u${currentUnit}_w${currentWeek}`] || []).find(x => x.id === id);
+  const key = `u${currentUnit}_w${currentWeek}`;
+  const f = (state.files[key] || []).find(x => x.id === id);
   if (!f) return;
   const a = document.createElement('a');
   a.href = f.data; a.download = f.name; a.click();
   showToast('⬇ Descargando: ' + f.name);
 }
 
-function deleteFile(id) {
+async function deleteFile(id) {
   if (!state.isAdmin) return;
   if (!confirm('¿Eliminar este fragmento del plano temporal?')) return;
   const key = `u${currentUnit}_w${currentWeek}`;
-  state.files[key] = (state.files[key] || []).filter(x => x.id !== id);
-  saveState(state); renderWeekContent();
-  showToast('✕ Fragmento eliminado', 'tw');
+  try {
+    await deleteFileFromDB(id);
+    state.files[key] = (state.files[key] || []).filter(x => x.id !== id);
+    renderWeekContent();
+    renderUnits();
+    showToast('✕ Fragmento eliminado', 'tw');
+  } catch (err) {
+    showToast('✕ Error al eliminar', 'te');
+  }
 }
 
 function openEdit(id) {
-  const f = (state.files[`u${currentUnit}_w${currentWeek}`] || []).find(x => x.id === id);
+  const key = `u${currentUnit}_w${currentWeek}`;
+  const f = (state.files[key] || []).find(x => x.id === id);
   if (!f) return;
   editingFileId = id;
   document.getElementById('editFileName').value = f.name;
@@ -366,17 +446,25 @@ function openEdit(id) {
   document.getElementById('editOverlay').classList.add('open');
 }
 
-function saveEdit() {
+async function saveEdit() {
   const key = `u${currentUnit}_w${currentWeek}`;
   const files = state.files[key] || [];
   const idx = files.findIndex(x => x.id === editingFileId);
   if (idx < 0) return;
   const n = document.getElementById('editFileName').value.trim();
-  if (n) files[idx].name = n;
-  files[idx].desc = document.getElementById('editFileDesc').value.trim();
-  saveState(state); closeEdit(); renderWeekContent();
-  showToast('💾 Fragmento actualizado');
+  const d = document.getElementById('editFileDesc').value.trim();
+  try {
+    await updateFileInDB(editingFileId, n || files[idx].name, d);
+    if (n) files[idx].name = n;
+    files[idx].desc = d;
+    closeEdit();
+    renderWeekContent();
+    showToast('💾 Fragmento actualizado');
+  } catch (err) {
+    showToast('✕ Error al guardar', 'te');
+  }
 }
+
 function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); editingFileId = null; }
 function fmtSize(b) {
   if (b < 1024) return b + 'B';
@@ -385,46 +473,16 @@ function fmtSize(b) {
 }
 
 // ════════════════════════════════════════════
-// CLOUD SYNC — JSONBlob
+// SHARE MODAL (simplificado — ya no necesita JSONBlob)
 // ════════════════════════════════════════════
-function buildPayload() {
-  return { files: state.files, ts: Date.now(), admin: ADMIN.user };
+function openShareModal() {
+  document.getElementById('shareOverlay').classList.add('open');
 }
-
-async function pushToCloud() {
-  setShareStatus('ing', '⟳ SUBIENDO DATOS...');
-  const body = JSON.stringify(buildPayload());
-  const kb = Math.round(body.length / 1024);
-  if (body.length > 4.8 * 1024 * 1024) {
-    setShareStatus('err', `⚠ Payload muy grande (${kb}KB). Reduce archivos.`); return;
-  }
-  try {
-    let blobId;
-    if (state.blobId) {
-      const r = await fetch(`${BLOB_API}/${state.blobId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
-      if (!r.ok) throw new Error('PUT ' + r.status);
-      blobId = state.blobId;
-    } else {
-      const r = await fetch(BLOB_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-      if (!r.ok) throw new Error('POST ' + r.status);
-      const loc = r.headers.get('Location') || r.url || '';
-      blobId = loc.split('/').filter(Boolean).pop() || ('local_' + Date.now());
-    }
-    state.blobId = blobId; saveState(state);
-    document.getElementById('blobIdDisplay').value = blobId;
-    document.getElementById('blobResultSection').style.display = '';
-    setShareStatus('ok', `✓ SINCRONIZADO · ${kb}KB`);
-    setSyncStatus('ok', 'SYNC OK');
-    showToast('☁ Datos subidos a la nube');
-  } catch (e) {
-    setShareStatus('err', '⚠ Error de red. Usa DESCARGAR BACKUP JSON.');
-    setSyncStatus('err', 'ERROR');
-    exportJsonDownload(); // fallback
-  }
-}
+function closeShareModal() { document.getElementById('shareOverlay').classList.remove('open'); }
 
 function exportJsonDownload() {
-  const json = JSON.stringify(buildPayload(), null, 2);
+  const payload = { files: state.files, ts: Date.now() };
+  const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -433,49 +491,25 @@ function exportJsonDownload() {
   showToast('📦 Backup descargado');
 }
 
+// Botón SYNC manual para refrescar desde Supabase
 async function doViewerSync() {
-  if (!state.blobId) {
-    const id = prompt('Ingresa el BLOB ID del administrador:', '');
-    if (!id) return;
-    state.blobId = id.trim(); saveState(state);
-  }
   setSyncStatus('ing', 'CARGANDO...');
-  await loadFromCloud(state.blobId);
+  await loadAllFiles();
+  renderUnits();
+  showToast('✓ Archivos sincronizados desde la nube');
 }
 
-async function loadFromCloud(blobId) {
-  try {
-    const r = await fetch(`${BLOB_API}/${blobId}`, { headers: { Accept: 'application/json' } });
-    if (!r.ok) throw new Error(r.status);
-    const data = await r.json();
-    if (data.files) {
-      state.files = data.files; saveState(state); renderUnits();
-      setSyncStatus('ok', '✓ CARGADO');
-      showToast('✓ Archivos del Arcana sincronizados');
-    }
-  } catch (e) {
-    setSyncStatus('err', 'ERROR SYNC');
-    showToast('✕ No se pudo sincronizar. Usa 📂 IMPORTAR con el JSON.', 'te');
-  }
+function copyField(id) {
+  const v = document.getElementById(id).value;
+  if (!v) return;
+  navigator.clipboard.writeText(v)
+    .then(() => showToast('📋 Copiado al portapapeles'))
+    .catch(() => { document.getElementById(id).select(); document.execCommand('copy'); showToast('📋 Copiado'); });
 }
 
-function importJsonFile(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (data.files) {
-        state.files = data.files; saveState(state); renderUnits();
-        showToast('✓ Backup importado correctamente');
-        setSyncStatus('ok', 'IMPORTADO');
-      } else { showToast('✕ Archivo no válido', 'te'); }
-    } catch { showToast('✕ JSON inválido', 'te'); }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
-
+// ════════════════════════════════════════════
+// SYNC STATUS / TOAST
+// ════════════════════════════════════════════
 function setSyncStatus(type, txt) {
   const el = document.getElementById('syncIndicator');
   el.style.display = ''; el.className = 'sync-indicator sync-' + type; el.textContent = txt;
@@ -486,37 +520,6 @@ function setShareStatus(type, txt) {
   el.className = 'status-line status-' + type; el.style.display = ''; el.textContent = txt;
 }
 
-// ════════════════════════════════════════════
-// SHARE MODAL
-// ════════════════════════════════════════════
-function openShareModal() {
-  document.getElementById('shareOverlay').classList.add('open');
-  const sl = document.getElementById('shareStatusLine'); sl.style.display = 'none';
-  if (state.blobId) {
-    document.getElementById('blobIdDisplay').value = state.blobId;
-    document.getElementById('blobResultSection').style.display = '';
-    setShareStatus('ok', '✓ DATOS EN LA NUBE — BLOB ID ACTIVO');
-  } else {
-    document.getElementById('blobResultSection').style.display = 'none';
-  }
-}
-function closeShareModal() { document.getElementById('shareOverlay').classList.remove('open'); }
-
-function copyField(id) {
-  const v = document.getElementById(id).value;
-  if (!v) return;
-  navigator.clipboard.writeText(v)
-    .then(() => showToast('📋 Copiado al portapapeles'))
-    .catch(() => {
-      document.getElementById(id).select();
-      document.execCommand('copy');
-      showToast('📋 Copiado');
-    });
-}
-
-// ════════════════════════════════════════════
-// TOAST
-// ════════════════════════════════════════════
 let toastTimer;
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
@@ -544,7 +547,5 @@ document.getElementById('shareOverlay').addEventListener('click', e => { if (e.t
 // RESTORE SESSION
 // ════════════════════════════════════════════
 if (state.currentUser) {
-  if (state.currentUser === ADMIN.user) { state.isAdmin = true; state.isViewer = false; }
-  else { state.isAdmin = false; state.isViewer = true; }
-  saveState(state); enterMain();
+  enterMain();
 }
