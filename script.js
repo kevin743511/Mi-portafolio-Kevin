@@ -56,7 +56,6 @@ animP();
 // ════════════════════════════════════════════
 const ADMIN = { user: 'kevin', pass: 'upla' };
 
-// Estado en memoria (ya no depende de localStorage para archivos)
 let state = {
   currentUser: localStorage.getItem('arcana_user') || null,
   isAdmin: localStorage.getItem('arcana_role') === 'admin',
@@ -87,7 +86,7 @@ async function handleLogin() {
   const err = document.getElementById('loginError');
   if (!u || !p) { err.textContent = '⚠ Completa los campos'; return; }
 
-  // Admin hardcodeado
+  // Admin fijo
   if (u === ADMIN.user && p === ADMIN.pass) {
     localStorage.setItem('arcana_user', u);
     localStorage.setItem('arcana_role', 'admin');
@@ -154,6 +153,7 @@ async function enterMain() {
   document.getElementById('headerUsername').textContent = state.currentUser.toUpperCase();
   const badge = document.getElementById('userBadge');
   const crown = document.getElementById('headerCrown');
+
   if (state.isAdmin) {
     badge.className = 'user-badge badge-admin'; crown.textContent = '♛ ';
     document.getElementById('btnShare').style.display = '';
@@ -162,20 +162,25 @@ async function enterMain() {
   } else {
     badge.className = 'user-badge badge-viewer'; crown.textContent = '👁 ';
     document.getElementById('btnShare').style.display = 'none';
-    document.getElementById('btnSync').style.display = 'none';
+    document.getElementById('btnSync').style.display = '';
     document.getElementById('btnImport').style.display = 'none';
   }
+
   setSyncStatus('ing', 'CARGANDO...');
   await loadAllFiles();
   renderUnits();
 }
 
 // ════════════════════════════════════════════
-// SUPABASE — CARGAR Y GUARDAR ARCHIVOS
+// SUPABASE — CARGAR ARCHIVOS
 // ════════════════════════════════════════════
 async function loadAllFiles() {
-  const { data, error } = await sb.from('files').select('*');
-  if (error) { setSyncStatus('err', 'ERROR BD'); showToast('✕ Error cargando archivos', 'te'); return; }
+  const { data, error } = await sb.from('files').select('*').order('created_at', { ascending: true });
+  if (error) {
+    setSyncStatus('err', 'ERROR BD');
+    showToast('✕ Error cargando archivos', 'te');
+    return;
+  }
   state.files = {};
   (data || []).forEach(f => {
     const key = `u${f.unit}_w${f.week}`;
@@ -184,26 +189,52 @@ async function loadAllFiles() {
       id: f.id,
       name: f.name,
       desc: f.description || '',
-      data: f.data,
+      url: f.file_url,
+      storage_path: f.storage_path,
       size: f.size,
       date: f.upload_date
     });
   });
-  setSyncStatus('ok', '✓ SINCRONIZADO');
+  setSyncStatus('ok', '✓ SYNC');
 }
 
-async function saveFileToDB(fileObj, unit, week) {
+// ════════════════════════════════════════════
+// SUPABASE STORAGE — SUBIR ARCHIVO
+// ════════════════════════════════════════════
+async function uploadToStorage(file, unit, week) {
+  const ext = file.name.split('.').pop();
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = `u${unit}_w${week}/${Date.now()}_${safeName}`;
+
+  const { data, error } = await sb.storage
+    .from('archivos')
+    .upload(path, file, { cacheControl: '3600', upsert: false });
+
+  if (error) throw new Error('Storage: ' + error.message);
+
+  // Obtener URL pública
+  const { data: urlData } = sb.storage.from('archivos').getPublicUrl(path);
+  return { path, url: urlData.publicUrl };
+}
+
+async function saveFileMetaToDB(fileObj, unit, week) {
   const { error } = await sb.from('files').insert({
     id: fileObj.id,
     unit: unit,
     week: week,
     name: fileObj.name,
     description: fileObj.desc || '',
-    data: fileObj.data,
+    file_url: fileObj.url,
+    storage_path: fileObj.storage_path,
     size: fileObj.size,
     upload_date: fileObj.date
   });
-  if (error) throw error;
+  if (error) throw new Error('DB: ' + error.message);
+}
+
+async function deleteFileFromStorage(storagePath) {
+  if (!storagePath) return;
+  await sb.storage.from('archivos').remove([storagePath]);
 }
 
 async function deleteFileFromDB(id) {
@@ -273,7 +304,12 @@ function openUnit(n) {
   document.getElementById('unitModal').classList.add('open');
   renderWeekContent();
 }
-function closeModal() { document.getElementById('unitModal').classList.remove('open'); renderUnits(); }
+
+function closeModal() {
+  document.getElementById('unitModal').classList.remove('open');
+  renderUnits();
+}
+
 function switchWeek(w) {
   currentWeek = w;
   document.querySelectorAll('.week-tab').forEach((t, i) => t.classList.toggle('active', i === w - 1));
@@ -331,11 +367,16 @@ function renderWeekContent() {
   html += `</div>`;
   body.innerHTML = html;
 
+  // Drag & drop
   const zone = document.getElementById('uploadZone');
   if (zone) {
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); handleFilesFromList(e.dataTransfer.files); });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      handleFilesFromList(e.dataTransfer.files);
+    });
   }
 }
 
@@ -356,7 +397,7 @@ function getFileIcon(e) {
 }
 
 // ════════════════════════════════════════════
-// FILE MANAGEMENT
+// FILE UPLOAD
 // ════════════════════════════════════════════
 function handleFileUpload(e) { handleFilesFromList(e.target.files); }
 
@@ -375,24 +416,33 @@ async function handleFilesFromList(fileList) {
   let done = 0;
   for (let fi = 0; fi < arr.length; fi++) {
     const file = arr[fi];
-    if (pl) pl.textContent = `INYECTANDO ${fi + 1}/${arr.length}...`;
-    if (pf) pf.style.width = Math.round(((fi + 0.5) / arr.length) * 100) + '%';
+    if (pl) pl.textContent = `SUBIENDO ${fi + 1}/${arr.length}: ${file.name}`;
+    if (pf) pf.style.width = Math.round(((fi + 0.1) / arr.length) * 100) + '%';
 
     try {
-      const data = await readFileAsDataURL(file);
+      // 1. Subir al Storage
+      const { path, url } = await uploadToStorage(file, currentUnit, currentWeek);
+      if (pf) pf.style.width = Math.round(((fi + 0.7) / arr.length) * 100) + '%';
+
+      // 2. Guardar metadatos en la tabla files
       const fileObj = {
         id: 'f' + Date.now() + Math.random().toString(36).substr(2, 5),
         name: file.name,
         desc: '',
-        data: data,
+        url: url,
+        storage_path: path,
         size: fmtSize(file.size),
         date: new Date().toLocaleDateString('es-PE')
       };
-      await saveFileToDB(fileObj, currentUnit, currentWeek);
+      await saveFileMetaToDB(fileObj, currentUnit, currentWeek);
+
+      // 3. Agregar al estado local
       state.files[key].push(fileObj);
       done++;
       if (pf) pf.style.width = Math.round(((fi + 1) / arr.length) * 100) + '%';
+
     } catch (err) {
+      console.error(err);
       showToast('✕ Error subiendo: ' + file.name, 'te');
     }
   }
@@ -403,21 +453,16 @@ async function handleFilesFromList(fileList) {
   if (done > 0) showToast(`✦ ${done} fragmento${done > 1 ? 's' : ''} inyectado${done > 1 ? 's' : ''}`);
 }
 
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
+// Descarga directa desde la URL pública de Supabase Storage
 function downloadFile(id) {
   const key = `u${currentUnit}_w${currentWeek}`;
   const f = (state.files[key] || []).find(x => x.id === id);
-  if (!f) return;
+  if (!f || !f.url) return;
   const a = document.createElement('a');
-  a.href = f.data; a.download = f.name; a.click();
+  a.href = f.url;
+  a.download = f.name;
+  a.target = '_blank';
+  a.click();
   showToast('⬇ Descargando: ' + f.name);
 }
 
@@ -425,13 +470,17 @@ async function deleteFile(id) {
   if (!state.isAdmin) return;
   if (!confirm('¿Eliminar este fragmento del plano temporal?')) return;
   const key = `u${currentUnit}_w${currentWeek}`;
+  const f = (state.files[key] || []).find(x => x.id === id);
+  if (!f) return;
   try {
+    await deleteFileFromStorage(f.storage_path);
     await deleteFileFromDB(id);
-    state.files[key] = (state.files[key] || []).filter(x => x.id !== id);
+    state.files[key] = state.files[key].filter(x => x.id !== id);
     renderWeekContent();
     renderUnits();
     showToast('✕ Fragmento eliminado', 'tw');
   } catch (err) {
+    console.error(err);
     showToast('✕ Error al eliminar', 'te');
   }
 }
@@ -465,7 +514,11 @@ async function saveEdit() {
   }
 }
 
-function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); editingFileId = null; }
+function closeEdit() {
+  document.getElementById('editOverlay').classList.remove('open');
+  editingFileId = null;
+}
+
 function fmtSize(b) {
   if (b < 1024) return b + 'B';
   if (b < 1048576) return (b / 1024).toFixed(1) + 'KB';
@@ -473,30 +526,21 @@ function fmtSize(b) {
 }
 
 // ════════════════════════════════════════════
-// SHARE MODAL (simplificado — ya no necesita JSONBlob)
+// SHARE MODAL
 // ════════════════════════════════════════════
 function openShareModal() {
   document.getElementById('shareOverlay').classList.add('open');
 }
-function closeShareModal() { document.getElementById('shareOverlay').classList.remove('open'); }
-
-function exportJsonDownload() {
-  const payload = { files: state.files, ts: Date.now() };
-  const json = JSON.stringify(payload, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'arcana_backup.json'; a.click();
-  URL.revokeObjectURL(url);
-  showToast('📦 Backup descargado');
+function closeShareModal() {
+  document.getElementById('shareOverlay').classList.remove('open');
 }
 
-// Botón SYNC manual para refrescar desde Supabase
+// Sync manual — recarga archivos desde Supabase
 async function doViewerSync() {
   setSyncStatus('ing', 'CARGANDO...');
   await loadAllFiles();
   renderUnits();
-  showToast('✓ Archivos sincronizados desde la nube');
+  showToast('✓ Archivos sincronizados');
 }
 
 function copyField(id) {
@@ -504,27 +548,37 @@ function copyField(id) {
   if (!v) return;
   navigator.clipboard.writeText(v)
     .then(() => showToast('📋 Copiado al portapapeles'))
-    .catch(() => { document.getElementById(id).select(); document.execCommand('copy'); showToast('📋 Copiado'); });
+    .catch(() => {
+      document.getElementById(id).select();
+      document.execCommand('copy');
+      showToast('📋 Copiado');
+    });
 }
 
 // ════════════════════════════════════════════
-// SYNC STATUS / TOAST
+// STATUS / TOAST
 // ════════════════════════════════════════════
 function setSyncStatus(type, txt) {
   const el = document.getElementById('syncIndicator');
-  el.style.display = ''; el.className = 'sync-indicator sync-' + type; el.textContent = txt;
+  el.style.display = '';
+  el.className = 'sync-indicator sync-' + type;
+  el.textContent = txt;
 }
 
 function setShareStatus(type, txt) {
   const el = document.getElementById('shareStatusLine');
-  el.className = 'status-line status-' + type; el.style.display = ''; el.textContent = txt;
+  el.className = 'status-line status-' + type;
+  el.style.display = '';
+  el.textContent = txt;
 }
 
 let toastTimer;
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast' + (type ? ' ' + type : '');
-  t.classList.add('show'); clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
@@ -539,9 +593,15 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) handleLogin();
 });
-document.getElementById('unitModal').addEventListener('click', e => { if (e.target === document.getElementById('unitModal')) closeModal(); });
-document.getElementById('editOverlay').addEventListener('click', e => { if (e.target === document.getElementById('editOverlay')) closeEdit(); });
-document.getElementById('shareOverlay').addEventListener('click', e => { if (e.target === document.getElementById('shareOverlay')) closeShareModal(); });
+document.getElementById('unitModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('unitModal')) closeModal();
+});
+document.getElementById('editOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('editOverlay')) closeEdit();
+});
+document.getElementById('shareOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('shareOverlay')) closeShareModal();
+});
 
 // ════════════════════════════════════════════
 // RESTORE SESSION
