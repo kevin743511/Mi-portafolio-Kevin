@@ -11,8 +11,33 @@
 
 <canvas id="particleCanvas"></canvas>
 
+<!-- ════ LANDING ════ -->
+<div id="landingScreen" class="screen active">
+  <div class="landing-wrapper">
+
+    <div class="landing-header">
+      <div class="landing-logo" id="landingLogo">
+        <div class="logo-glyph">⬡</div>
+        <h1>OS.ARCANA</h1>
+        <div class="logo-sub">◆ UPLA EDITION ◆</div>
+      </div>
+      <button class="btn-enter-login" id="btnGoLogin" onclick="goToLogin()">
+        <span class="btn-el-icon">⚔</span> INVOCAR PORTAL
+      </button>
+    </div>
+
+    <div class="landing-tagline" id="landingTagline">
+      <span>CRÓNICAS DEL TIEMPO DETENIDO</span>
+    </div>
+
+    <div class="landing-units" id="landingUnits"></div>
+
+    <div class="landing-footer">◇ CHRONOSPHERE PROTOCOL v4.2 ◇</div>
+  </div>
+</div>
+
 <!-- ════ LOGIN ════ -->
-<div id="loginScreen" class="screen active">
+<div id="loginScreen" class="screen">
   <div class="login-wrapper">
     <div class="arcana-logo">
       <h1>OS.ARCANA</h1>
@@ -27,7 +52,6 @@
             <button class="tab-btn" onclick="switchAuthTab('register')">✦ REGISTRAR</button>
           </div>
 
-          <!-- LOGIN -->
           <div id="loginForm">
             <div class="form-group">
               <label>▸ Nombre de Héroe</label>
@@ -42,7 +66,6 @@
             <button class="btn-arcana" onclick="handleLogin()">⚡ INVOCAR ACCESO</button>
           </div>
 
-          <!-- REGISTER -->
           <div id="registerForm" style="display:none">
             <div class="form-group">
               <label>▸ Tipo de Invocador</label>
@@ -77,11 +100,40 @@
             <div class="error-msg" id="registerError"></div>
             <button class="btn-arcana" onclick="handleRegister()">👁 FORJAR VISUALIZADOR</button>
           </div>
+
+          <div style="margin-top:14px;text-align:center;">
+            <button class="btn-back-landing" onclick="goToLanding()">← Volver al Arcana</button>
+          </div>
         </div>
       </div>
     </div>
-
     <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--text-dim);letter-spacing:4px;opacity:.35;">◇ CHRONOSPHERE PROTOCOL v4.2 ◇</div>
+  </div>
+</div>
+
+<!-- ════ LANDING UNIT VIEWER (público) ════ -->
+<div id="publicModal" class="modal-overlay">
+  <div class="modal-box" id="publicModalBox">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-dome-mini" id="pubModalDome">I</div>
+        <div>
+          <div class="modal-title" id="pubModalTitle">UNIDAD I</div>
+          <div style="font-size:.66rem;color:var(--text-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;" id="pubModalSub">FRAGMENTOS</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closePublicModal()">✕</button>
+    </div>
+    <div class="week-tabs" id="pubWeekTabs">
+      <button class="week-tab active" onclick="switchPublicWeek(1)">◈ W1</button>
+      <button class="week-tab" onclick="switchPublicWeek(2)">◈ W2</button>
+      <button class="week-tab" onclick="switchPublicWeek(3)">◈ W3</button>
+      <button class="week-tab" onclick="switchPublicWeek(4)">◈ W4</button>
+    </div>
+    <div class="modal-body" id="pubModalBody"></div>
+    <div class="pub-modal-footer">
+      <button class="btn-arcana-sm" onclick="goToLogin()">⚔ Iniciar sesión para más acceso</button>
+    </div>
   </div>
 </div>
 
@@ -102,7 +154,6 @@
         <button class="btn-hdr btn-logout" onclick="handleLogout()">SALIR</button>
       </div>
     </header>
-
     <div class="main-content">
       <div class="section-title">CRÓNICAS DEL TIEMPO DETENIDO</div>
       <div class="units-grid" id="unitsGrid"></div>
@@ -156,32 +207,34 @@
 <div class="share-overlay" id="shareOverlay">
   <div class="share-box">
     <h3>⬡ COMPARTIR ARCANA</h3>
-    <p>Los archivos se sincronizan automáticamente desde Supabase. Comparte la URL de la web con los Visualizadores.</p>
-
+    <p>Los archivos se sincronizan automáticamente desde Supabase.</p>
     <div class="status-line" id="shareStatusLine"></div>
-
     <div class="share-section s-admin">
       <h4>♛ ADMINISTRADOR — BACKUP</h4>
       <button class="btn-push btn-push-blue" onclick="exportJsonDownload()">📦 DESCARGAR BACKUP JSON</button>
     </div>
-
     <div class="share-section s-viewer">
       <h4>👁 INSTRUCCIONES PARA VISUALIZADOR</h4>
       <div class="share-steps">
         1. Comparte el enlace de GitHub Pages con tus compañeros.<br>
-        2. Se <strong>registran como Visualizador</strong> con un nombre y contraseña.<br>
-        3. Los archivos se cargan <strong>automáticamente</strong> desde la nube.<br>
-        4. Pueden hacer clic en <strong>☁ SYNC</strong> para refrescar en cualquier momento.
+        2. Se <strong>registran como Visualizador</strong>.<br>
+        3. Los archivos se cargan <strong>automáticamente</strong> desde la nube.
       </div>
     </div>
-
     <button class="btn-close-share" onclick="closeShareModal()">CERRAR</button>
+  </div>
+</div>
+
+<!-- ════ TRANSITION OVERLAY ════ -->
+<div id="transitionOverlay" class="transition-overlay">
+  <div class="transition-content">
+    <div class="transition-rune">⬡</div>
+    <div class="transition-text" id="transitionText">INVOCANDO...</div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
