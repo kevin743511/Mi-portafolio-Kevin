@@ -119,13 +119,13 @@ function dragonSVG(color, color2) {
     <!-- Cuerpo del dragón: segmentos en arco -->
     <circle cx="118" cy="118" r="110" fill="none" stroke="${c}" stroke-width="2.5" stroke-opacity="0.15"/>
     <!-- Segmentos escamados -->
-    <path d="M118 8 A110 110 0 0 1 200 45" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" class="dragon-scale" style="color:${c}"/>
-    <path d="M200 45 A110 110 0 0 1 226 118" fill="none" stroke="${c}" stroke-width="5.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.9"/>
-    <path d="M226 118 A110 110 0 0 1 200 191" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.8"/>
-    <path d="M200 191 A110 110 0 0 1 118 228" fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.7"/>
-    <path d="M118 228 A110 110 0 0 1 36 191" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.6"/>
-    <path d="M36 191 A110 110 0 0 1 10 118" fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.5"/>
-    <path d="M10 118 A110 110 0 0 1 36 45" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.4"/>
+    <path d="M118 8 A. " fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" class="dragon-scale" style="color:${c}"/>
+    <path d="M200 45 A. " fill="none" stroke="${c}" stroke-width="5.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.9"/>
+    <path d="M226 118 A. " fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.8"/>
+    <path d="M200 191 A. " fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.7"/>
+    <path d="M118 228 A. " fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.6"/>
+    <path d="M36 191 A. " fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.5"/>
+    <path d="M10 118 A. " fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.4"/>
 
     <!-- Escamas decorativas a lo largo del cuerpo -->
     <ellipse cx="165" cy="20" rx="7" ry="4" fill="${c}" opacity="0.7" transform="rotate(30 165 20)"/>
@@ -195,10 +195,10 @@ let publicCurrentUnit = 1, publicCurrentWeek = 1;
 // UNIT DEFS
 // ════════════════════════════════════════════
 const unitDefs = [
-  { num: 1, roman: 'I',   label: 'PRIMERA CRÓNICA', cls: 'unit-1', mcls: 'modal-u1', color: '#00aaff', color2: '#00ffee' },
-  { num: 2, roman: 'II',  label: 'SEGUNDA CRÓNICA', cls: 'unit-2', mcls: 'modal-u2', color: '#aa00ff', color2: '#dd88ff' },
-  { num: 3, roman: 'III', label: 'TERCERA CRÓNICA', cls: 'unit-3', mcls: 'modal-u3', color: '#00ff88', color2: '#aaffdd' },
-  { num: 4, roman: 'IV',  label: 'CUARTA CRÓNICA',  cls: 'unit-4', mcls: 'modal-u4', color: '#ff3344', color2: '#ff9966' },
+  { num: 1, roman: 'I',   label: 'UNIDAD 1', cls: 'unit-1', mcls: 'modal-u1', color: '#00aaff', color2: '#00ffee' },
+  { num: 2, roman: 'II',  label: 'UNIDAD 2', cls: 'unit-2', mcls: 'modal-u2', color: '#aa00ff', color2: '#dd88ff' },
+  { num: 3, roman: 'III', label: 'UNIDAD 3', cls: 'unit-3', mcls: 'modal-u3', color: '#00ff88', color2: '#aaffdd' },
+  { num: 4, roman: 'IV',  label: 'UNIDAD 4',  cls: 'unit-4', mcls: 'modal-u4', color: '#ff3344', color2: '#ff9966' },
 ];
 
 // ════════════════════════════════════════════
@@ -220,7 +220,7 @@ function showTransition(text, callback, delay = 900) {
 // ════════════════════════════════════════════
 function goToLogin() {
   soundPortal();
-  showTransition('INVOCANDO PORTAL...', () => {
+  showTransition('ACCEDIENDO AL SISTEMA...', () => {
     document.getElementById('landingScreen').classList.remove('active');
     document.getElementById('loginScreen').classList.add('active');
     // Animación entrada login
@@ -231,13 +231,12 @@ function goToLogin() {
 
 function goToLanding() {
   soundClick();
-  showTransition('REGRESANDO AL ARCANA...', () => {
+  showTransition('REGRESANDO AL INICIO...', () => {
     document.getElementById('loginScreen').classList.remove('active');
     document.getElementById('landingScreen').classList.add('active');
     renderLandingUnits();
   }, 600);
 }
-
 // ════════════════════════════════════════════
 // LANDING RENDER
 // ════════════════════════════════════════════
@@ -254,7 +253,7 @@ function renderLandingUnits() {
     const fc = getFileCount(ud.num);
     const mp = Math.min(100, fc * 8);
     const card = document.createElement('div');
-    card.className = `unit-card ${ud.cls}`;
+    card.className = `unit-card ${ud.cls} ${fc > 0 ? 'has-files' : 'no-files'}`;
     card.style.animationDelay = `${0.6 + idx * 0.15}s`;
     card.style.animation = `fadeInUp .7s ${0.6 + idx * 0.15}s cubic-bezier(.34,1.56,.64,1) both`;
     card.onclick = () => openPublicUnit(ud.num);
@@ -271,7 +270,7 @@ function renderLandingUnits() {
       <div class="unit-info">
         <div class="unit-title">${ud.label}</div>
         <div class="mana-bar-wrap"><div class="mana-bar" style="width:${mp}%"></div></div>
-        <div class="mana-label">FRAGMENTOS: ${fc}</div>
+        <div class="mana-label">ARCHIVOS: ${fc}</div>
       </div>`;
     container.appendChild(card);
   });
@@ -284,7 +283,7 @@ function renderUnits() {
     const fc = getFileCount(ud.num);
     const mp = Math.min(100, fc * 8);
     const card = document.createElement('div');
-    card.className = `unit-card ${ud.cls}`;
+    card.className = `unit-card ${ud.cls} ${fc > 0 ? 'has-files' : 'no-files'}`;
     card.onclick = () => openUnit(ud.num);
     card.innerHTML = `
       <div class="dome-wrapper">
@@ -299,7 +298,7 @@ function renderUnits() {
       <div class="unit-info">
         <div class="unit-title">${ud.label}</div>
         <div class="mana-bar-wrap"><div class="mana-bar" style="width:${mp}%"></div></div>
-        <div class="mana-label">FRAGMENTOS: ${fc}</div>
+        <div class="mana-label">ARCHIVOS: ${fc}</div>
       </div>`;
     grid.appendChild(card);
   });
@@ -341,7 +340,7 @@ function renderPublicWeekContent() {
   if (files.length === 0) {
     html += `<div class="empty-state">
       <div class="es-icon">◌</div>
-      <div>NO HAY FRAGMENTOS EN ESTA SEMANA</div>
+      <div>NO HAY ARCHIVOS EN ESTA SEMANA</div>
       <div style="margin-top:7px;font-size:.62rem;opacity:.45;">El administrador aún no ha subido archivos aquí</div>
     </div>`;
   } else {
@@ -410,13 +409,13 @@ async function handleLogin() {
 
   if (error || !data) {
     soundError();
-    err.textContent = '✕ Héroe no reconocido en el Arcana';
+    err.textContent = '✕ Usuario no reconocido en el sistema';
   } else {
     soundSuccess();
     localStorage.setItem('arcana_user', u);
     localStorage.setItem('arcana_role', 'viewer');
     state.currentUser = u; state.isAdmin = false; state.isViewer = true;
-    showTransition('👁 FRAGMENTOS CARGANDO — BIENVENIDO, VISUALIZADOR', () => enterMain(), 1000);
+    showTransition('👁 ARCHIVOS CARGANDO — BIENVENIDO, VISUALIZADOR', () => enterMain(), 1000);
   }
 }
 
@@ -427,17 +426,17 @@ async function handleRegister() {
   const err = document.getElementById('registerError');
   if (!u || !p) { soundError(); err.textContent = '⚠ Completa todos los campos'; return; }
   if (p !== p2) { soundError(); err.textContent = '✕ Las claves no coinciden'; return; }
-  if (u === ADMIN.user) { soundError(); err.textContent = '✕ Nombre reservado del Void'; return; }
+  if (u === ADMIN.user) { soundError(); err.textContent = '✕ Nombre reservado del sistema'; return; }
 
-  err.textContent = '⟳ Forjando héroe...';
+  err.textContent = '⟳ Creando usuario...';
   const { error } = await sb.from('users').insert({ username: u, password: p, role: 'viewer' });
 
   if (error) {
     soundError();
-    err.textContent = error.code === '23505' ? '✕ Héroe ya existe' : '✕ Error: ' + error.message;
+    err.textContent = error.code === '23505' ? '✕ Usuario ya existe' : '✕ Error: ' + error.message;
   } else {
     soundSuccess();
-    showToast('✦ Visualizador forjado. ¡Ya puedes acceder!');
+    showToast('✦ Visualizador creado. ¡Ya puedes acceder!');
     switchAuthTab('login');
     document.getElementById('loginUser').value = u;
     err.textContent = '';
@@ -502,9 +501,8 @@ async function enterMain() {
   await loadAllFiles();
   renderUnits();
 }
-
 // ════════════════════════════════════════════
-// MODAL (admin/viewer)
+// UNIT MODAL (admin/viewer)
 // ════════════════════════════════════════════
 function openUnit(n) {
   soundOpen();
@@ -520,7 +518,9 @@ function openUnit(n) {
   renderWeekContent();
 }
 
-function closeModal() { document.getElementById('unitModal').classList.remove('open'); renderUnits(); }
+function closeModal() {
+  document.getElementById('unitModal').classList.remove('open');
+}
 
 function switchWeek(w) {
   soundClick();
@@ -538,29 +538,27 @@ function renderWeekContent() {
   if (state.isAdmin) {
     html += `
       <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">⬆</div>
-        <p>Arrastra archivos o haz clic para inyectar fragmentos</p>
-        <input type="file" id="fileInput" multiple onchange="handleFileUpload(event)">
+        <div class="upload-icon">☁</div>
+        <p>ARRASTRA ARCHIVOS O HAZ CLIC PARA SUBIR</p>
+        <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
       </div>
       <div class="progress-wrap" id="progressWrap">
-        <div class="progress-lbl" id="progressLbl">INYECTANDO...</div>
+        <div class="progress-lbl" id="progressLbl">SUBIENDO...</div>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      </div>
-      <button class="btn-inject" onclick="document.getElementById('fileInput').click()">⚡ INYECTAR DATOS</button>`;
+      </div>`;
   }
 
   html += '<div class="files-list">';
   if (files.length === 0) {
     html += `<div class="empty-state">
       <div class="es-icon">◌</div>
-      <div>NO HAY FRAGMENTOS EN ESTA SEMANA</div>
-      ${state.isViewer ? '<div style="margin-top:7px;font-size:.62rem;opacity:.45;">El administrador aún no ha subido archivos aquí</div>' : ''}
+      <div>NO HAY ARCHIVOS EN ESTA SEMANA</div>
     </div>`;
   } else {
     files.forEach(f => {
       const ext = (f.name.split('.').pop() || '').toLowerCase();
       html += `
-        <div class="file-item" id="fi_${f.id}">
+        <div class="file-item">
           <div class="file-icon">${getFileIcon(ext)}</div>
           <div class="file-info">
             <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
@@ -569,8 +567,9 @@ function renderWeekContent() {
           <div class="file-actions">
             <button class="btn-fa btn-dl" onclick="downloadFile('${f.id}')">⬇ DL</button>
             ${state.isAdmin ? `
-              <button class="btn-fa btn-edit" onclick="openEdit('${f.id}')">✎</button>
-              <button class="btn-fa btn-del" onclick="deleteFile('${f.id}')">✕</button>` : ''}
+              <button class="btn-fa btn-edit" onclick="editFile('${f.id}')">✎ EDIT</button>
+              <button class="btn-fa btn-del" onclick="deleteFile('${f.id}')">✕ DEL</button>
+            ` : ''}
           </div>
         </div>`;
     });
@@ -578,219 +577,367 @@ function renderWeekContent() {
   html += '</div>';
   body.innerHTML = html;
 
-  const zone = document.getElementById('uploadZone');
-  if (zone) {
+  if (state.isAdmin) {
+    const zone = document.getElementById('uploadZone');
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); handleFilesFromList(e.dataTransfer.files); });
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      handleFiles(e.dataTransfer.files);
+    });
   }
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function getFileIcon(e) {
-  const m = {pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',ppt:'📋',pptx:'📋',jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',svg:'🎨',bmp:'🖼',mp4:'🎬',avi:'🎬',mkv:'🎬',mp3:'🎵',wav:'🎵',zip:'📦',rar:'📦','7z':'📦',txt:'📃',md:'📃',js:'⚙',py:'🐍',html:'🌐',css:'🎨',json:'📋',xml:'📋',csv:'📊',c:'⚙',cpp:'⚙',java:'☕'};
-  return m[e] || '📁';
-}
-
 // ════════════════════════════════════════════
-// FILE UPLOAD — Supabase Storage
+// FILE UPLOAD (admin)
 // ════════════════════════════════════════════
-function handleFileUpload(e) { handleFilesFromList(e.target.files); }
-
-async function handleFilesFromList(fileList) {
+async function handleFiles(fileList) {
   if (!state.isAdmin) return;
-  const key = `u${currentUnit}_w${currentWeek}`;
-  if (!state.files[key]) state.files[key] = [];
-  const arr = Array.from(fileList);
-  if (!arr.length) return;
+  const files = Array.from(fileList);
+  if (files.length === 0) return;
 
   const pw = document.getElementById('progressWrap');
   const pf = document.getElementById('progressFill');
   const pl = document.getElementById('progressLbl');
-  if (pw) pw.style.display = 'block';
+  pw.style.display = 'block';
 
-  let done = 0;
-  for (let fi = 0; fi < arr.length; fi++) {
-    const file = arr[fi];
-    if (pl) pl.textContent = `SUBIENDO ${fi + 1}/${arr.length}: ${file.name}`;
-    if (pf) pf.style.width = Math.round(((fi + 0.1) / arr.length) * 100) + '%';
-    try {
-      const { path, url } = await uploadToStorage(file, currentUnit, currentWeek);
-      if (pf) pf.style.width = Math.round(((fi + 0.7) / arr.length) * 100) + '%';
-      const fileObj = {
-        id: 'f' + Date.now() + Math.random().toString(36).substr(2, 5),
-        name: file.name, desc: '', url, storage_path: path,
-        size: fmtSize(file.size), date: new Date().toLocaleDateString('es-PE')
-      };
-      await saveFileMetaToDB(fileObj, currentUnit, currentWeek);
-      state.files[key].push(fileObj);
-      done++;
-      if (pf) pf.style.width = Math.round(((fi + 1) / arr.length) * 100) + '%';
-    } catch (err) {
-      console.error(err);
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    pl.textContent = `SUBIENDO ${i + 1}/${files.length}: ${file.name}`;
+    pf.style.width = '0%';
+
+    const path = `u${currentUnit}/w${currentWeek}/${Date.now()}_${file.name}`;
+    const { data: upData, error: upErr } = await sb.storage.from('arcana-files').upload(path, file);
+
+    if (upErr) {
+      soundError();
       showToast('✕ Error subiendo: ' + file.name, 'te');
+      continue;
     }
+
+    pf.style.width = '50%';
+    const { data: urlData } = sb.storage.from('arcana-files').getPublicUrl(path);
+    const url = urlData.publicUrl;
+
+    const meta = {
+      unit: currentUnit, week: currentWeek, name: file.name,
+      file_url: url, storage_path: path,
+      size: formatSize(file.size), upload_date: new Date().toLocaleDateString('es-ES'),
+      description: ''
+    };
+
+    const { data: dbData, error: dbErr } = await sb.from('files').insert(meta).select().single();
+    if (dbErr) {
+      soundError();
+      showToast('✕ Error guardando metadata: ' + file.name, 'te');
+    } else {
+      const key = `u${currentUnit}_w${currentWeek}`;
+      if (!state.files[key]) state.files[key] = [];
+      state.files[key].push({
+        id: dbData.id, name: dbData.name, desc: dbData.description || '',
+        url: dbData.file_url, storage_path: dbData.storage_path,
+        size: dbData.size, date: dbData.upload_date
+      });
+      soundUpload();
+    }
+    pf.style.width = '100%';
   }
-  if (pw) pw.style.display = 'none';
-  if (done > 0) { soundUpload(); showToast(`✦ ${done} fragmento${done > 1 ? 's' : ''} inyectado${done > 1 ? 's' : ''}`); }
-  renderWeekContent(); renderUnits();
+
+  pw.style.display = 'none';
+  showToast(`✓ ${files.length} archivo(s) subido(s)`);
+  renderWeekContent();
+  renderUnits();
+  renderLandingUnits();
 }
 
-async function uploadToStorage(file, unit, week) {
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `u${unit}_w${week}/${Date.now()}_${safeName}`;
-  const { error } = await sb.storage.from('archivos').upload(path, file, { cacheControl: '3600', upsert: false });
-  if (error) throw new Error('Storage: ' + error.message);
-  const { data: urlData } = sb.storage.from('archivos').getPublicUrl(path);
-  return { path, url: urlData.publicUrl };
-}
-
-async function saveFileMetaToDB(fileObj, unit, week) {
-  const { error } = await sb.from('files').insert({
-    id: fileObj.id, unit, week, name: fileObj.name,
-    description: fileObj.desc || '', file_url: fileObj.url,
-    storage_path: fileObj.storage_path, size: fileObj.size, upload_date: fileObj.date
-  });
-  if (error) throw new Error('DB: ' + error.message);
-}
-
+// ════════════════════════════════════════════
+// FILE ACTIONS
+// ════════════════════════════════════════════
 function downloadFile(id) {
   const key = `u${currentUnit}_w${currentWeek}`;
   const f = (state.files[key] || []).find(x => x.id === id);
   if (!f || !f.url) return;
-  soundClick();
   const a = document.createElement('a');
   a.href = f.url; a.download = f.name; a.target = '_blank'; a.click();
+  soundClick();
   showToast('⬇ Descargando: ' + f.name);
+}
+
+function editFile(id) {
+  if (!state.isAdmin) return;
+  soundClick();
+  editingFileId = id;
+  const key = `u${currentUnit}_w${currentWeek}`;
+  const f = (state.files[key] || []).find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('editFileName').value = f.name;
+  document.getElementById('editFileDesc').value = f.desc;
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function closeEdit() {
+  document.getElementById('editOverlay').classList.remove('open');
+  editingFileId = null;
+}
+
+async function saveEdit() {
+  if (!state.isAdmin || !editingFileId) return;
+  const newName = document.getElementById('editFileName').value.trim();
+  const newDesc = document.getElementById('editFileDesc').value.trim();
+  if (!newName) { soundError(); showToast('✕ El nombre no puede estar vacío', 'te'); return; }
+
+  const { error } = await sb.from('files').update({ name: newName, description: newDesc }).eq('id', editingFileId);
+  if (error) {
+    soundError();
+    showToast('✕ Error actualizando archivo', 'te');
+  } else {
+    soundSuccess();
+    showToast('✓ Archivo actualizado');
+    const key = `u${currentUnit}_w${currentWeek}`;
+    const f = (state.files[key] || []).find(x => x.id === editingFileId);
+    if (f) { f.name = newName; f.desc = newDesc; }
+    closeEdit();
+    renderWeekContent();
+    renderUnits();
+    renderLandingUnits();
+  }
 }
 
 async function deleteFile(id) {
   if (!state.isAdmin) return;
-  if (!confirm('¿Eliminar este fragmento del plano temporal?')) return;
+  if (!confirm('¿Eliminar este archivo permanentemente?')) return;
+  soundClick();
+
   const key = `u${currentUnit}_w${currentWeek}`;
   const f = (state.files[key] || []).find(x => x.id === id);
   if (!f) return;
-  try {
-    if (f.storage_path) await sb.storage.from('archivos').remove([f.storage_path]);
-    await sb.from('files').delete().eq('id', id);
+
+  const { error: storageErr } = await sb.storage.from('arcana-files').remove([f.storage_path]);
+  if (storageErr) console.warn('Error eliminando storage:', storageErr);
+
+  const { error: dbErr } = await sb.from('files').delete().eq('id', id);
+  if (dbErr) {
+    soundError();
+    showToast('✕ Error eliminando archivo', 'te');
+  } else {
+    soundSuccess();
+    showToast('✓ Archivo eliminado');
     state.files[key] = state.files[key].filter(x => x.id !== id);
-    soundClick();
-    renderWeekContent(); renderUnits();
-    showToast('✕ Fragmento eliminado', 'tw');
-  } catch (err) { showToast('✕ Error al eliminar', 'te'); }
-}
-
-function openEdit(id) {
-  const key = `u${currentUnit}_w${currentWeek}`;
-  const f = (state.files[key] || []).find(x => x.id === id);
-  if (!f) return;
-  editingFileId = id;
-  document.getElementById('editFileName').value = f.name;
-  document.getElementById('editFileDesc').value = f.desc || '';
-  document.getElementById('editOverlay').classList.add('open');
-}
-
-async function saveEdit() {
-  const key = `u${currentUnit}_w${currentWeek}`;
-  const files = state.files[key] || [];
-  const idx = files.findIndex(x => x.id === editingFileId);
-  if (idx < 0) return;
-  const n = document.getElementById('editFileName').value.trim();
-  const d = document.getElementById('editFileDesc').value.trim();
-  try {
-    await sb.from('files').update({ name: n || files[idx].name, description: d }).eq('id', editingFileId);
-    if (n) files[idx].name = n;
-    files[idx].desc = d;
-    soundClick();
-    closeEdit(); renderWeekContent();
-    showToast('💾 Fragmento actualizado');
-  } catch { showToast('✕ Error al guardar', 'te'); }
-}
-
-function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); editingFileId = null; }
-function fmtSize(b) {
-  if (b < 1024) return b + 'B';
-  if (b < 1048576) return (b / 1024).toFixed(1) + 'KB';
-  return (b / 1048576).toFixed(1) + 'MB';
+    renderWeekContent();
+    renderUnits();
+    renderLandingUnits();
+  }
 }
 
 // ════════════════════════════════════════════
 // SHARE / SYNC
 // ════════════════════════════════════════════
-function openShareModal() { document.getElementById('shareOverlay').classList.add('open'); }
-function closeShareModal() { document.getElementById('shareOverlay').classList.remove('open'); }
+function openShareModal() {
+  if (!state.isAdmin) return;
+  soundClick();
+  document.getElementById('shareOverlay').classList.add('open');
+}
 
-async function doViewerSync() {
-  setSyncStatus('ing', 'CARGANDO...');
-  await loadAllFiles();
-  renderUnits();
-  showToast('✓ Archivos sincronizados');
+function closeShareModal() {
+  document.getElementById('shareOverlay').classList.remove('open');
 }
 
 function exportJsonDownload() {
-  const json = JSON.stringify({ files: state.files, ts: Date.now() }, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
+  soundClick();
+  const exp = { files: state.files, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'arcana_backup.json'; a.click();
+  a.href = url; a.download = `kvn_upla_backup_${Date.now()}.json`; a.click();
   URL.revokeObjectURL(url);
   showToast('📦 Backup descargado');
+  const sl = document.getElementById('shareStatusLine');
+  sl.className = 'status-line status-ok';
+  sl.textContent = '✓ BACKUP GENERADO EXITOSAMENTE';
+  sl.style.display = 'block';
+  setTimeout(() => sl.style.display = 'none', 3000);
 }
 
-function setSyncStatus(type, txt) {
-  const el = document.getElementById('syncIndicator');
-  el.style.display = ''; el.className = 'sync-indicator sync-' + type; el.textContent = txt;
+async function doViewerSync() {
+  if (!state.isViewer) return;
+  soundClick();
+  setSyncStatus('ing', 'SINCRONIZANDO...');
+  await loadAllFiles();
+  renderUnits();
+  renderLandingUnits();
+  showToast('✓ Archivos sincronizados');
 }
-function setShareStatus(type, txt) {
-  const el = document.getElementById('shareStatusLine');
-  el.className = 'status-line status-' + type; el.style.display = ''; el.textContent = txt;
+
+// ════════════════════════════════════════════
+// SYNC STATUS
+// ════════════════════════════════════════════
+function setSyncStatus(type, text) {
+  const ind = document.getElementById('syncIndicator');
+  ind.className = `sync-indicator sync-${type}`;
+  ind.textContent = text;
+  ind.style.display = '';
 }
 
 // ════════════════════════════════════════════
 // TOAST
 // ════════════════════════════════════════════
-let toastTimer;
-function showToast(msg, type = '') {
+function showToast(msg, cls = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast' + (type ? ' ' + type : '');
-  t.classList.add('show'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  t.textContent = msg;
+  t.className = `toast ${cls}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function getFileIcon(ext) {
+  const icons = {
+    pdf: '📕', doc: '📘', docx: '📘', txt: '📄',
+    xls: '📗', xlsx: '📗', csv: '📗',
+    ppt: '📙', pptx: '📙',
+    zip: '📦', rar: '📦', '7z': '📦',
+    jpg: '🖼', jpeg: '🖼', png: '🖼', gif: '🖼', svg: '🖼',
+    mp4: '🎬', avi: '🎬', mov: '🎬', mkv: '🎬',
+    mp3: '🎵', wav: '🎵', flac: '🎵',
+    html: '🌐', css: '🎨', js: '⚙', json: '⚙',
+    py: '🐍', java: '☕', cpp: '⚡', c: '⚡',
+  };
+  return icons[ext] || '📎';
 }
 
 // ════════════════════════════════════════════
-// KEYBOARD
+// INIT
+// ════════════════════════════════════════════
+async function init() {
+  soundLanding();
+  
+  // Si ya hay sesión activa, ir directo a main
+  if (state.currentUser) {
+    showTransition('RESTAURANDO SESIÓN...', async () => {
+      await enterMain();
+    }, 800);
+    return;
+  }
+
+  // Sino, mostrar landing
+  document.getElementById('landingScreen').classList.add('active');
+  
+  // Cargar archivos públicos para el landing
+  const { data, error } = await sb.from('files').select('*').order('created_at', { ascending: true });
+  if (!error && data) {
+    state.files = {};
+    data.forEach(f => {
+      const key = `u${f.unit}_w${f.week}`;
+      if (!state.files[key]) state.files[key] = [];
+      state.files[key].push({
+        id: f.id, name: f.name, desc: f.description || '',
+        url: f.file_url, storage_path: f.storage_path,
+        size: f.size, date: f.upload_date
+      });
+    });
+  }
+  
+  renderLandingUnits();
+}
+
+// ════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
 // ════════════════════════════════════════════
 document.addEventListener('keydown', e => {
+  // ESC para cerrar modales
   if (e.key === 'Escape') {
-    if (document.getElementById('editOverlay').classList.contains('open')) closeEdit();
-    else if (document.getElementById('shareOverlay').classList.contains('open')) closeShareModal();
-    else if (document.getElementById('publicModal').classList.contains('open')) closePublicModal();
-    else closeModal();
+    if (document.getElementById('unitModal').classList.contains('open')) {
+      closeModal();
+    }
+    if (document.getElementById('publicModal').classList.contains('open')) {
+      closePublicModal();
+    }
+    if (document.getElementById('editOverlay').classList.contains('open')) {
+      closeEdit();
+    }
+    if (document.getElementById('shareOverlay').classList.contains('open')) {
+      closeShareModal();
+    }
   }
-  if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) handleLogin();
+  
+  // ENTER en login
+  if (e.key === 'Enter') {
+    const loginScreen = document.getElementById('loginScreen');
+    if (loginScreen.classList.contains('active')) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      if (loginForm.style.display !== 'none') {
+        handleLogin();
+      } else if (registerForm.style.display !== 'none') {
+        handleRegister();
+      }
+    }
+  }
+  
+  // CTRL+S para guardar en edit
+  if (e.ctrlKey && e.key === 's') {
+    if (document.getElementById('editOverlay').classList.contains('open')) {
+      e.preventDefault();
+      saveEdit();
+    }
+  }
 });
-document.getElementById('unitModal').addEventListener('click', e => { if (e.target === document.getElementById('unitModal')) closeModal(); });
-document.getElementById('editOverlay').addEventListener('click', e => { if (e.target === document.getElementById('editOverlay')) closeEdit(); });
-document.getElementById('shareOverlay').addEventListener('click', e => { if (e.target === document.getElementById('shareOverlay')) closeShareModal(); });
-document.getElementById('publicModal').addEventListener('click', e => { if (e.target === document.getElementById('publicModal')) closePublicModal(); });
 
 // ════════════════════════════════════════════
-// INIT — cargar archivos y mostrar landing
+// CLICK OUTSIDE TO CLOSE MODALS
 // ════════════════════════════════════════════
-(async () => {
-  // Siempre cargamos archivos al inicio para mostrar contadores en landing
-  await loadAllFiles();
+document.getElementById('unitModal').addEventListener('click', e => {
+  if (e.target.id === 'unitModal') closeModal();
+});
 
-  if (state.currentUser) {
-    // Sesión activa — ir directo al main
-    enterMain();
-  } else {
-    // Mostrar landing con unidades públicas
-    renderLandingUnits();
-    // Sonido de bienvenida con pequeño delay
-    setTimeout(() => soundLanding(), 400);
-  }
-})();
+document.getElementById('publicModal').addEventListener('click', e => {
+  if (e.target.id === 'publicModal') closePublicModal();
+});
+
+document.getElementById('editOverlay').addEventListener('click', e => {
+  if (e.target.id === 'editOverlay') closeEdit();
+});
+
+document.getElementById('shareOverlay').addEventListener('click', e => {
+  if (e.target.id === 'shareOverlay') closeShareModal();
+});
+
+// ════════════════════════════════════════════
+// PREVENT DEFAULT DRAG & DROP ON DOCUMENT
+// ════════════════════════════════════════════
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => e.preventDefault());
+
+// ════════════════════════════════════════════
+// START APP
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', init);
+
+// ════════════════════════════════════════════
+// CONSOLE EASTER EGG
+// ════════════════════════════════════════════
+console.log('%c⚡ KVN.UPLA SYSTEM ⚡', 'color:#00d4ff;font-size:24px;font-weight:bold;text-shadow:0 0 10px #00ffee');
+console.log('%cUniversidad Peruana Los Andes', 'color:#ffd700;font-size:14px;letter-spacing:2px');
+console.log('%cIngeniería de Sistemas y Computación', 'color:#00ffee;font-size:12px');
+console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color:#00aaff');
+console.log('%cDesarrollado por: Kevin Yeison Ccoñas Gomez', 'color:#aaa;font-size:11px');
+console.log('%c5to Ciclo | 2025', 'color:#666;font-size:10px');
+console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color:#00aaff');
+console.log('%c🐉 Powered by Dragon Arcana Engine', 'color:#ff6600;font-size:11px;font-style:italic');
+console.log('%c', '');
+console.log('%c⚠ ADVERTENCIA:', 'color:#ff3344;font-size:13px;font-weight:bold');
+console.log('%cEste sistema está protegido. No ejecutes código desconocido aquí.', 'color:#ff9966;font-size:11px');
+console.log('%cSi alguien te pidió copiar/pegar algo, probablemente sea un intento de hackeo.', 'color:#ff9966;font-size:11px');
