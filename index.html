@@ -1,241 +1,325 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OS.ARCANA — UPLA Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KVN.UPLA — Portal Académico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Cinzel+Decorative:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <canvas id="particleCanvas"></canvas>
 
-<canvas id="particleCanvas"></canvas>
-
-<!-- ════ LANDING ════ -->
-<div id="landingScreen" class="screen active">
-  <div class="landing-wrapper">
-
-    <div class="landing-header">
-      <div class="landing-logo" id="landingLogo">
-        <div class="logo-glyph">⬡</div>
-        <h1>OS.ARCANA</h1>
-        <div class="logo-sub">◆ UPLA EDITION ◆</div>
-      </div>
-      <button class="btn-enter-login" id="btnGoLogin" onclick="goToLogin()">
-        <span class="btn-el-icon">⚔</span> INVOCAR PORTAL
-      </button>
+  <!-- ══════════════════════════════════════════
+       TRANSITION OVERLAY
+  ══════════════════════════════════════════ -->
+  <div class="transition-overlay" id="transitionOverlay">
+    <div class="transition-content">
+      <div class="transition-rune">◈</div>
+      <div class="transition-text" id="transitionText">CARGANDO...</div>
     </div>
-
-    <div class="landing-tagline" id="landingTagline">
-      <span>CRÓNICAS DEL TIEMPO DETENIDO</span>
-    </div>
-
-    <div class="landing-units" id="landingUnits"></div>
-
-    <div class="landing-footer">◇ CHRONOSPHERE PROTOCOL v4.2 ◇</div>
   </div>
-</div>
 
-<!-- ════ LOGIN ════ -->
-<div id="loginScreen" class="screen">
-  <div class="login-wrapper">
-    <div class="arcana-logo">
-      <h1>OS.ARCANA</h1>
-      <div class="subtitle">◆ UPLA EDITION ◆</div>
-    </div>
-
-    <div class="fire-container">
-      <div class="fire-border">
-        <div class="login-box">
-          <div class="tab-selector">
-            <button class="tab-btn active" onclick="switchAuthTab('login')">⚔ ACCEDER</button>
-            <button class="tab-btn" onclick="switchAuthTab('register')">✦ REGISTRAR</button>
+  <!-- ══════════════════════════════════════════
+       LANDING SCREEN
+  ══════════════════════════════════════════ -->
+  <div class="screen active" id="landingScreen">
+    <div class="landing-wrapper">
+      <div class="landing-header">
+        <div class="landing-logo">
+          <div class="logo-glyph">◈</div>
+          <div>
+            <h1>KVN.UPLA</h1>
+            <div class="logo-sub">UNIVERSIDAD PERUANA LOS ANDES</div>
           </div>
+        </div>
+        <button class="btn-enter-login" onclick="goToLogin()">
+          <span class="btn-el-icon">⚡</span>
+          <span>LOGIN</span>
+        </button>
+      </div>
 
-          <div id="loginForm">
-            <div class="form-group">
-              <label>▸ Nombre de Héroe</label>
-              <input type="text" id="loginUser" placeholder="hero_name" autocomplete="username">
-            </div>
-            <div class="form-group">
-              <label>▸ Clave de Fragmento</label>
-              <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
-            </div>
-            <div class="error-msg" id="loginError"></div>
-            <br>
-            <button class="btn-arcana" onclick="handleLogin()">⚡ INVOCAR ACCESO</button>
+      <!-- INFO PERSONAL -->
+      <div class="student-info-card">
+        <div class="student-avatar">
+          <div class="juggernaut-guide">
+            <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <!-- Cuerpo del Juggernaut -->
+              <ellipse cx="50" cy="70" rx="22" ry="28" fill="#8B4513" opacity="0.9"/>
+              <!-- Armadura pecho -->
+              <path d="M35 60 Q50 55 65 60 L65 80 Q50 85 35 80 Z" fill="#CD853F" stroke="#8B4513" stroke-width="1.5"/>
+              <circle cx="45" cy="68" r="3" fill="#FFD700"/>
+              <circle cx="55" cy="68" r="3" fill="#FFD700"/>
+              <!-- Cabeza/Casco -->
+              <ellipse cx="50" cy="40" rx="18" ry="20" fill="#8B0000" opacity="0.95"/>
+              <path d="M40 35 Q50 30 60 35" fill="none" stroke="#FF4500" stroke-width="2" stroke-linecap="round"/>
+              <!-- Máscara característica -->
+              <rect x="42" y="38" width="16" height="12" rx="2" fill="#4B0000" opacity="0.8"/>
+              <circle cx="46" cy="44" r="2.5" fill="#FF6347" opacity="0.9"/>
+              <circle cx="54" cy="44" r="2.5" fill="#FF6347" opacity="0.9"/>
+              <!-- Cuernos del casco -->
+              <path d="M35 35 L28 25 L33 32" fill="#8B0000" stroke="#4B0000" stroke-width="1"/>
+              <path d="M65 35 L72 25 L67 32" fill="#8B0000" stroke="#4B0000" stroke-width="1"/>
+              <!-- Espada -->
+              <line x1="70" y1="50" x2="85" y2="35" stroke="#C0C0C0" stroke-width="3" stroke-linecap="round"/>
+              <path d="M85 35 L88 32 L86 38" fill="#FFD700"/>
+              <rect x="68" y="48" width="4" height="8" rx="1" fill="#8B4513"/>
+              <!-- Brazos -->
+              <ellipse cx="32" cy="65" rx="6" ry="12" fill="#CD853F" transform="rotate(-20 32 65)"/>
+              <ellipse cx="68" cy="65" rx="6" ry="12" fill="#CD853F" transform="rotate(20 68 65)"/>
+              <!-- Piernas -->
+              <rect x="42" y="90" width="7" height="20" rx="3" fill="#8B4513"/>
+              <rect x="51" y="90" width="7" height="20" rx="3" fill="#8B4513"/>
+              <!-- Botas -->
+              <ellipse cx="45" cy="110" rx="5" ry="4" fill="#4B0000"/>
+              <ellipse cx="55" cy="110" rx="5" ry="4" fill="#4B0000"/>
+              <!-- Detalles de armadura -->
+              <path d="M45 75 L48 78 L45 81" fill="none" stroke="#FFD700" stroke-width="1"/>
+              <path d="M55 75 L52 78 L55 81" fill="none" stroke="#FFD700" stroke-width="1"/>
+              <!-- Aura de poder -->
+              <circle cx="50" cy="60" r="35" fill="none" stroke="#FF4500" stroke-width="0.5" opacity="0.3" class="jugg-aura"/>
+            </svg>
           </div>
-
-          <div id="registerForm" style="display:none">
-            <div class="form-group">
-              <label>▸ Tipo de Invocador</label>
-              <div class="role-cards">
-                <div class="role-card selected-viewer" id="rcViewer" onclick="selectRole('viewer')">
-                  <div class="rc-icon">👁</div>
-                  <div class="rc-name">VISUALIZADOR</div>
-                  <div class="rc-desc">Ver y descargar archivos</div>
-                </div>
-                <div class="role-card" id="rcAdmin" onclick="selectRole('admin_attempt')" style="opacity:.35;cursor:not-allowed;">
-                  <div class="rc-icon">♛</div>
-                  <div class="rc-name">ADMINISTRADOR</div>
-                  <div class="rc-desc">Rol único · Ya asignado</div>
-                </div>
-              </div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:rgba(255,200,0,.55);margin-top:5px;letter-spacing:1px;">
-                ♛ Solo existe un Administrador en el Arcana
-              </div>
-            </div>
-            <div class="form-group">
-              <label>▸ Nombre de Héroe</label>
-              <input type="text" id="regUser" placeholder="nuevo_heroe" autocomplete="username">
-            </div>
-            <div class="form-group">
-              <label>▸ Clave de Fragmento</label>
-              <input type="password" id="regPass" placeholder="••••••••" autocomplete="new-password">
-            </div>
-            <div class="form-group">
-              <label>▸ Confirmar Clave</label>
-              <input type="password" id="regPass2" placeholder="••••••••" autocomplete="new-password">
-            </div>
-            <div class="error-msg" id="registerError"></div>
-            <button class="btn-arcana" onclick="handleRegister()">👁 FORJAR VISUALIZADOR</button>
+        </div>
+        <div class="student-details">
+          <h2 class="student-name">Kevin Yeison Ccoñas Gomez</h2>
+          <div class="student-meta">
+            <div class="meta-item"><span class="meta-icon">👤</span> 20 años</div>
+            <div class="meta-item"><span class="meta-icon">📚</span> 5to Ciclo</div>
           </div>
-
-          <div style="margin-top:14px;text-align:center;">
-            <button class="btn-back-landing" onclick="goToLanding()">← Volver al Arcana</button>
+          <div class="student-career">
+            <div class="career-icon">💻</div>
+            <div>
+              <div class="career-faculty">Facultad de Ingeniería</div>
+              <div class="career-name">Ingeniería de Sistemas y Computación</div>
+            </div>
+          </div>
+          <div class="student-vision">
+            <p>🚀 Futuro profesional en desarrollo de software, sistemas inteligentes y tecnologías emergentes. Comprometido con la innovación tecnológica y el aprendizaje continuo en el campo de la ingeniería de sistemas.</p>
           </div>
         </div>
       </div>
-    </div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--text-dim);letter-spacing:4px;opacity:.35;">◇ CHRONOSPHERE PROTOCOL v4.2 ◇</div>
-  </div>
-</div>
 
-<!-- ════ LANDING UNIT VIEWER (público) ════ -->
-<div id="publicModal" class="modal-overlay">
-  <div class="modal-box" id="publicModalBox">
-    <div class="modal-header">
-      <div class="modal-title-wrap">
-        <div class="modal-dome-mini" id="pubModalDome">I</div>
-        <div>
-          <div class="modal-title" id="pubModalTitle">UNIDAD I</div>
-          <div style="font-size:.66rem;color:var(--text-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;" id="pubModalSub">FRAGMENTOS</div>
+      <div class="landing-tagline">PORTAL DE TRABAJOS ACADÉMICOS</div>
+
+      <div class="landing-units" id="landingUnits">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="landing-footer">
+        UPLA © 2025 — INGENIERÍA DE SISTEMAS
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PUBLIC MODAL (ver archivos sin login)
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="publicModal">
+    <div class="modal-box" id="publicModalBox">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-dome-mini" id="pubModalDome">I</div>
+          <div>
+            <div class="modal-title" id="pubModalTitle">UNIDAD I</div>
+            <div class="modal-sub" id="pubModalSub">PRIMERA UNIDAD</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closePublicModal()">✕</button>
+      </div>
+      <div class="week-tabs" id="pubWeekTabs">
+        <div class="week-tab active" onclick="switchPublicWeek(1)">SEMANA 1</div>
+        <div class="week-tab" onclick="switchPublicWeek(2)">SEMANA 2</div>
+        <div class="week-tab" onclick="switchPublicWeek(3)">SEMANA 3</div>
+        <div class="week-tab" onclick="switchPublicWeek(4)">SEMANA 4</div>
+      </div>
+      <div class="modal-body" id="pubModalBody">
+        <!-- Contenido dinámico -->
+      </div>
+      <div class="pub-modal-footer">
+        <button class="btn-arcana-sm" onclick="goToLogin()">🔐 Iniciar Sesión para Gestionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LOGIN SCREEN
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="loginScreen">
+    <div class="login-wrapper">
+      <div class="arcana-logo">
+        <h1>KVN.UPLA</h1>
+        <div class="subtitle">ACCESO AL SISTEMA</div>
+      </div>
+
+      <div class="fire-container">
+        <div class="fire-border">
+          <div class="login-box">
+            <div class="tab-selector">
+              <button class="tab-btn active" onclick="switchAuthTab('login')">INGRESAR</button>
+              <button class="tab-btn" onclick="switchAuthTab('register')">REGISTRAR</button>
+            </div>
+
+            <div id="loginForm">
+              <div class="form-group">
+                <label>USUARIO</label>
+                <input type="text" id="loginUser" placeholder="Ingresa tu usuario">
+              </div>
+              <div class="form-group">
+                <label>CONTRASEÑA</label>
+                <input type="password" id="loginPass" placeholder="Ingresa tu contraseña">
+              </div>
+              <div class="error-msg" id="loginError"></div>
+              <button class="btn-arcana" onclick="handleLogin()">⚡ ACCEDER</button>
+            </div>
+
+            <div id="registerForm" style="display:none;">
+              <div class="form-group">
+                <label>USUARIO</label>
+                <input type="text" id="regUser" placeholder="Elige un usuario">
+              </div>
+              <div class="form-group">
+                <label>CONTRASEÑA</label>
+                <input type="password" id="regPass" placeholder="Crea una contraseña">
+              </div>
+              <div class="form-group">
+                <label>CONFIRMAR CONTRASEÑA</label>
+                <input type="password" id="regPass2" placeholder="Repite tu contraseña">
+              </div>
+              <div class="form-group">
+                <label>ROL</label>
+                <div class="role-cards">
+                  <div class="role-card selected-viewer" onclick="selectRole('viewer')">
+                    <div class="rc-icon">👁</div>
+                    <div class="rc-name">VISUALIZADOR</div>
+                    <div class="rc-desc">Solo lectura</div>
+                  </div>
+                  <div class="role-card" onclick="selectRole('admin_attempt')">
+                    <div class="rc-icon">♛</div>
+                    <div class="rc-name">ADMIN</div>
+                    <div class="rc-desc">Reservado</div>
+                  </div>
+                </div>
+              </div>
+              <div class="error-msg" id="registerError"></div>
+              <button class="btn-arcana" onclick="handleRegister()">✦ CREAR CUENTA</button>
+            </div>
+          </div>
         </div>
       </div>
-      <button class="modal-close" onclick="closePublicModal()">✕</button>
-    </div>
-    <div class="week-tabs" id="pubWeekTabs">
-      <button class="week-tab active" onclick="switchPublicWeek(1)">◈ W1</button>
-      <button class="week-tab" onclick="switchPublicWeek(2)">◈ W2</button>
-      <button class="week-tab" onclick="switchPublicWeek(3)">◈ W3</button>
-      <button class="week-tab" onclick="switchPublicWeek(4)">◈ W4</button>
-    </div>
-    <div class="modal-body" id="pubModalBody"></div>
-    <div class="pub-modal-footer">
-      <button class="btn-arcana-sm" onclick="goToLogin()">⚔ Iniciar sesión para más acceso</button>
+
+      <button class="btn-back-landing" onclick="goToLanding()">← Volver al inicio</button>
     </div>
   </div>
-</div>
 
-<!-- ════ MAIN ════ -->
-<div id="mainScreen" class="screen">
-  <div style="width:100%;height:100%;overflow-y:auto;">
-    <header class="main-header">
-      <div class="header-logo">OS.ARCANA</div>
+  <!-- ══════════════════════════════════════════
+       MAIN SCREEN (admin/viewer)
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="mainScreen">
+    <div class="main-header">
+      <div class="header-logo">KVN.UPLA</div>
       <div class="header-right">
-        <span class="sync-indicator" id="syncIndicator" style="display:none"></span>
-        <button class="btn-hdr btn-hdr-share" id="btnShare" onclick="openShareModal()" style="display:none">⬡ COMPARTIR</button>
-        <button class="btn-hdr btn-hdr-sync" id="btnSync" onclick="doViewerSync()" style="display:none">☁ SYNC</button>
-        <button class="btn-hdr btn-hdr-import" id="btnImport" style="display:none">📂 IMPORTAR</button>
+        <div class="sync-indicator" id="syncIndicator" style="display:none;"></div>
+        <button class="btn-hdr btn-hdr-share" id="btnShare" onclick="openShareModal()" style="display:none;">📤 COMPARTIR</button>
+        <button class="btn-hdr btn-hdr-sync" id="btnSync" onclick="doViewerSync()" style="display:none;">🔄 SYNC</button>
+        <button class="btn-hdr btn-hdr-import" id="btnImport" style="display:none;">📥 IMPORTAR</button>
         <div class="user-badge" id="userBadge">
           <span id="headerCrown"></span>
-          <span id="headerUsername">VOID</span>
+          <span id="headerUsername">USUARIO</span>
         </div>
-        <button class="btn-hdr btn-logout" onclick="handleLogout()">SALIR</button>
+        <button class="btn-hdr btn-logout" onclick="handleLogout()">🚪 SALIR</button>
       </div>
-    </header>
+    </div>
+
     <div class="main-content">
-      <div class="section-title">CRÓNICAS DEL TIEMPO DETENIDO</div>
-      <div class="units-grid" id="unitsGrid"></div>
+      <h2 class="section-title">MIS UNIDADES</h2>
+      <div class="units-grid" id="unitsGrid">
+        <!-- Generado dinámicamente -->
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ════ UNIT MODAL ════ -->
-<div class="modal-overlay" id="unitModal">
-  <div class="modal-box" id="modalBox">
-    <div class="modal-header">
-      <div class="modal-title-wrap">
-        <div class="modal-dome-mini" id="modalDomeMini">I</div>
-        <div>
-          <div class="modal-title" id="modalTitle">UNIDAD I</div>
-          <div style="font-size:.66rem;color:var(--text-dim);letter-spacing:2px;font-family:'Share Tech Mono',monospace;" id="modalSub">FRAGMENTOS</div>
+  <!-- ══════════════════════════════════════════
+       UNIT MODAL (admin/viewer)
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="unitModal">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-dome-mini" id="modalDomeMini">I</div>
+          <div>
+            <div class="modal-title" id="modalTitle">UNIDAD I</div>
+            <div class="modal-sub" id="modalSub">PRIMERA UNIDAD</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="week-tabs" id="weekTabs">
+        <div class="week-tab active" onclick="switchWeek(1)">SEMANA 1</div>
+        <div class="week-tab" onclick="switchWeek(2)">SEMANA 2</div>
+        <div class="week-tab" onclick="switchWeek(3)">SEMANA 3</div>
+        <div class="week-tab" onclick="switchWeek(4)">SEMANA 4</div>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EDIT FILE OVERLAY
+  ══════════════════════════════════════════ -->
+  <div class="edit-overlay" id="editOverlay">
+    <div class="edit-box">
+      <h3>✎ EDITAR ARCHIVO</h3>
+      <input type="text" id="editFileName" placeholder="Nombre del archivo">
+      <textarea id="editFileDesc" placeholder="Descripción (opcional)"></textarea>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="saveEdit()">💾 GUARDAR</button>
+        <button class="btn-cancel" onclick="closeEdit()">✕ CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SHARE OVERLAY
+  ══════════════════════════════════════════ -->
+  <div class="share-overlay" id="shareOverlay">
+    <div class="share-box">
+      <h3>📤 COMPARTIR SISTEMA</h3>
+      <p>Exporta una copia de seguridad de todos los archivos y metadatos del sistema.</p>
+      
+      <div class="share-section s-admin">
+        <h4>♛ PARA ADMINISTRADORES</h4>
+        <div class="share-steps">
+          <strong>1.</strong> Descarga el backup JSON<br>
+          <strong>2.</strong> Compártelo con otros usuarios<br>
+          <strong>3.</strong> Ellos pueden importarlo desde su panel
         </div>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="week-tabs" id="weekTabs">
-      <button class="week-tab active" onclick="switchWeek(1)">◈ W1</button>
-      <button class="week-tab" onclick="switchWeek(2)">◈ W2</button>
-      <button class="week-tab" onclick="switchWeek(3)">◈ W3</button>
-      <button class="week-tab" onclick="switchWeek(4)">◈ W4</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
 
-<!-- ════ EDIT MODAL ════ -->
-<div class="edit-overlay" id="editOverlay">
-  <div class="edit-box">
-    <h3>✦ EDITAR FRAGMENTO</h3>
-    <div class="form-group">
-      <label>Nombre del Archivo</label>
-      <input type="text" id="editFileName" placeholder="nombre_archivo.ext">
-    </div>
-    <div class="form-group">
-      <label>Descripción (opcional)</label>
-      <textarea id="editFileDesc" placeholder="Descripción del fragmento..."></textarea>
-    </div>
-    <div class="edit-actions">
-      <button class="btn-save" onclick="saveEdit()">💾 GUARDAR</button>
-      <button class="btn-cancel" onclick="closeEdit()">CANCELAR</button>
-    </div>
-  </div>
-</div>
-
-<!-- ════ SHARE MODAL ════ -->
-<div class="share-overlay" id="shareOverlay">
-  <div class="share-box">
-    <h3>⬡ COMPARTIR ARCANA</h3>
-    <p>Los archivos se sincronizan automáticamente desde Supabase.</p>
-    <div class="status-line" id="shareStatusLine"></div>
-    <div class="share-section s-admin">
-      <h4>♛ ADMINISTRADOR — BACKUP</h4>
-      <button class="btn-push btn-push-blue" onclick="exportJsonDownload()">📦 DESCARGAR BACKUP JSON</button>
-    </div>
-    <div class="share-section s-viewer">
-      <h4>👁 INSTRUCCIONES PARA VISUALIZADOR</h4>
-      <div class="share-steps">
-        1. Comparte el enlace de GitHub Pages con tus compañeros.<br>
-        2. Se <strong>registran como Visualizador</strong>.<br>
-        3. Los archivos se cargan <strong>automáticamente</strong> desde la nube.
+      <div class="share-section s-viewer">
+        <h4>👁 PARA VISUALIZADORES</h4>
+        <div class="share-steps">
+          Usa el botón <strong>SYNC</strong> en el header para actualizar tus archivos desde la base de datos.
+        </div>
       </div>
+
+      <div class="status-line" id="shareStatusLine"></div>
+
+      <button class="btn-push" onclick="exportJsonDownload()">📦 DESCARGAR BACKUP</button>
+      <button class="btn-close-share" onclick="closeShareModal()">✕ CERRAR</button>
     </div>
-    <button class="btn-close-share" onclick="closeShareModal()">CERRAR</button>
   </div>
-</div>
 
-<!-- ════ TRANSITION OVERLAY ════ -->
-<div id="transitionOverlay" class="transition-overlay">
-  <div class="transition-content">
-    <div class="transition-rune">⬡</div>
-    <div class="transition-text" id="transitionText">INVOCANDO...</div>
-  </div>
-</div>
+  <!-- ══════════════════════════════════════════
+       TOAST
+  ══════════════════════════════════════════ -->
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
