@@ -1,6 +1,8 @@
 // ════════════════════════════════════════════
+// SUPABASE CONFIG — ✅ CON TU API KEY CORRECTA
+// ════════════════════════════════════════════
 const SUPABASE_URL = 'https://kdsfvnwrhtlfryqlrhya.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkc2Z2bndyaHRsZnJ5cWxyaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4MjI1NzcsImV4cCI6MjA1MjM5ODU3N30.Tzr847YIW5vuNjvWBXAL7w_iUbRgtyN';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkc2Z2bndyaHRsZnJ5cWxyaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MTY2MjgsImV4cCI6MjA5MjM5MjYyOH0.o7d7U4LWXj_n4J8BGoZYqL9AKKYdY_ydEEgZ1VabA5Q';
 
 // Verificar que Supabase esté cargado
 if (typeof supabase === 'undefined') {
@@ -15,6 +17,7 @@ sb.from('files').select('count', { count: 'exact', head: true })
   .then(({ count, error }) => {
     if (error) {
       console.error('❌ Error conectando a Supabase:', error);
+      alert('ERROR DE CONEXIÓN: ' + error.message);
     } else {
       console.log('✅ Conexión a Supabase exitosa. Archivos en BD:', count);
     }
@@ -27,13 +30,19 @@ const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
 function getAudio() {
-  if (!audioCtx) audioCtx = new AudioCtx();
+  if (!audioCtx) {
+    audioCtx = new AudioCtx();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
   return audioCtx;
 }
 
 function playTone(freq, type, duration, vol, delay = 0) {
   try {
     const ac = getAudio();
+    if (ac.state === 'suspended') return;
     const osc = ac.createOscillator();
     const gain = ac.createGain();
     osc.connect(gain); gain.connect(ac.destination);
@@ -46,7 +55,6 @@ function playTone(freq, type, duration, vol, delay = 0) {
   } catch(e) {}
 }
 
-// Sonido al entrar al landing
 function soundLanding() {
   playTone(220, 'sine', 0.6, 0.12, 0);
   playTone(330, 'sine', 0.5, 0.08, 0.1);
@@ -54,34 +62,28 @@ function soundLanding() {
   playTone(880, 'sine', 0.8, 0.05, 0.35);
 }
 
-// Sonido al ir al login
 function soundPortal() {
   [200, 300, 450, 600, 800].forEach((f, i) => playTone(f, 'sawtooth', 0.3, 0.06, i * 0.06));
 }
 
-// Sonido login exitoso
 function soundSuccess() {
   [523, 659, 784, 1046].forEach((f, i) => playTone(f, 'sine', 0.4, 0.1, i * 0.1));
 }
 
-// Sonido error
 function soundError() {
   playTone(180, 'sawtooth', 0.3, 0.15, 0);
   playTone(120, 'sawtooth', 0.4, 0.12, 0.15);
 }
 
-// Sonido abrir unidad
 function soundOpen() {
   playTone(440, 'triangle', 0.2, 0.1, 0);
   playTone(660, 'triangle', 0.15, 0.08, 0.08);
 }
 
-// Sonido upload completado
 function soundUpload() {
   [392, 523, 784].forEach((f, i) => playTone(f, 'sine', 0.3, 0.09, i * 0.08));
 }
 
-// Sonido click suave
 function soundClick() {
   playTone(600, 'sine', 0.08, 0.08, 0);
 }
@@ -125,19 +127,14 @@ function animP() {
 animP();
 
 // ════════════════════════════════════════════
-// DRAGON SVG generator
+// DRAGON SVG generator — ✅ CORREGIDO
 // ════════════════════════════════════════════
 function dragonSVG(color, color2) {
   const c = color, c2 = color2;
   return `<svg viewBox="0 0 236 236" xmlns="http://www.w3.org/2000/svg">
     <circle cx="118" cy="118" r="110" fill="none" stroke="${c}" stroke-width="2.5" stroke-opacity="0.15"/>
-    <path d="M118 8 A. " fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" class="dragon-scale" style="color:${c}"/>
-    <path d="M200 45 A. " fill="none" stroke="${c}" stroke-width="5.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.9"/>
-    <path d="M226 118 A. " fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.8"/>
-    <path d="M200 191 A. " fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.7"/>
-    <path d="M118 228 A. " fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.6"/>
-    <path d="M36 191 A. " fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.5"/>
-    <path d="M10 118 A. " fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.4"/>
+    <circle cx="118" cy="118" r="95" fill="none" stroke="${c}" stroke-width="1.5" stroke-opacity="0.1"/>
+    <circle cx="118" cy="118" r="80" fill="none" stroke="${c}" stroke-width="1" stroke-opacity="0.08"/>
     <ellipse cx="165" cy="20" rx="7" ry="4" fill="${c}" opacity="0.7" transform="rotate(30 165 20)"/>
     <ellipse cx="210" cy="70" rx="7" ry="4" fill="${c}" opacity="0.65" transform="rotate(60 210 70)"/>
     <ellipse cx="225" cy="135" rx="7" ry="4" fill="${c}" opacity="0.6" transform="rotate(90 225 135)"/>
@@ -147,7 +144,7 @@ function dragonSVG(color, color2) {
     <ellipse cx="14" cy="140" rx="6" ry="3.5" fill="${c}" opacity="0.35" transform="rotate(180 14 140)"/>
     <ellipse cx="22" cy="65" rx="5" ry="3" fill="${c}" opacity="0.3" transform="rotate(210 22 65)"/>
     <g transform="translate(118, 8)">
-      <ellipse cx="0" cy="0" rx="14" ry="10" fill="${c}" opacity="0.95" class="dragon-head" style="color:${c}"/>
+      <ellipse cx="0" cy="0" rx="14" ry="10" fill="${c}" opacity="0.95" class="dragon-head"/>
       <path d="M-10 4 Q0 14 10 4" fill="${c2}" opacity="0.8"/>
       <circle cx="-5" cy="-2" r="3" fill="#000" opacity="0.9"/>
       <circle cx="-5" cy="-2" r="1.5" fill="${c2}" opacity="1"/>
@@ -165,8 +162,6 @@ function dragonSVG(color, color2) {
       <ellipse cx="3" cy="-4" rx="3" ry="6" fill="#ffcc00" opacity="0.5"/>
       <ellipse cx="-3" cy="-6" rx="2.5" ry="5" fill="#fff" opacity="0.3"/>
     </g>
-    <path d="M36 45 Q20 30 8 8" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
-    <path d="M8 8 Q2 -2 14 4" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
     <circle cx="186" cy="32" r="2.5" fill="${c2}" opacity="0.8"/>
     <circle cx="220" cy="90" r="2" fill="${c2}" opacity="0.7"/>
     <circle cx="222" cy="155" r="2" fill="${c2}" opacity="0.6"/>
@@ -233,238 +228,316 @@ function goToLanding() {
   }, 600);
 }
 // ════════════════════════════════════════════
-const SUPABASE_URL = 'https://kdsfvnwrhtlfryqlrhya.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkc2Z2bndyaHRsZnJ5cWxyaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4MjI1NzcsImV4cCI6MjA1MjM5ODU3N30.Tzr847YIW5vuNjvWBXAL7w_iUbRgtyN';
-
-// Verificar que Supabase esté cargado
-if (typeof supabase === 'undefined') {
-  console.error('❌ ERROR: Supabase no está cargado. Verifica que el script esté en el HTML.');
-  alert('ERROR: Falta cargar la librería de Supabase. Revisa el HTML.');
+// LANDING RENDER
+// ════════════════════════════════════════════
+function getFileCount(n) {
+  let c = 0;
+  for (let w = 1; w <= 4; w++) c += (state.files[`u${n}_w${w}`] || []).length;
+  return c;
 }
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Test de conexión
-sb.from('files').select('count', { count: 'exact', head: true })
-  .then(({ count, error }) => {
-    if (error) {
-      console.error('❌ Error conectando a Supabase:', error);
-    } else {
-      console.log('✅ Conexión a Supabase exitosa. Archivos en BD:', count);
-    }
+function renderLandingUnits() {
+  const container = document.getElementById('landingUnits');
+  container.innerHTML = '';
+  unitDefs.forEach((ud, idx) => {
+    const fc = getFileCount(ud.num);
+    const mp = Math.min(100, fc * 8);
+    const card = document.createElement('div');
+    card.className = `unit-card ${ud.cls} ${fc > 0 ? 'has-files' : 'no-files'}`;
+    card.style.animationDelay = `${0.6 + idx * 0.15}s`;
+    card.style.animation = `fadeInUp .7s ${0.6 + idx * 0.15}s cubic-bezier(.34,1.56,.64,1) both`;
+    card.onclick = () => openPublicUnit(ud.num);
+    card.innerHTML = `
+      <div class="dome-wrapper">
+        <div class="dome-outer"></div>
+        <div class="dome-fire-ring"></div>
+        <div class="dragon-ring-outer">${dragonSVG(ud.color, ud.color2)}</div>
+        <div class="dome-inner">
+          <div class="dome-num">${ud.roman}</div>
+          <div class="dome-label">UNIDAD</div>
+        </div>
+      </div>
+      <div class="unit-info">
+        <div class="unit-title">${ud.label}</div>
+        <div class="mana-bar-wrap"><div class="mana-bar" style="width:${mp}%"></div></div>
+        <div class="mana-label">ARCHIVOS: ${fc}</div>
+      </div>`;
+    container.appendChild(card);
   });
-
-// ════════════════════════════════════════════
-// AUDIO ENGINE (Web Audio API — sin archivos externos)
-// ════════════════════════════════════════════
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-
-function getAudio() {
-  if (!audioCtx) audioCtx = new AudioCtx();
-  return audioCtx;
 }
 
-function playTone(freq, type, duration, vol, delay = 0) {
-  try {
-    const ac = getAudio();
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.connect(gain); gain.connect(ac.destination);
-    osc.type = type; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, ac.currentTime + delay);
-    gain.gain.linearRampToValueAtTime(vol, ac.currentTime + delay + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + delay + duration);
-    osc.start(ac.currentTime + delay);
-    osc.stop(ac.currentTime + delay + duration + 0.05);
-  } catch(e) {}
-}
-
-// Sonido al entrar al landing
-function soundLanding() {
-  playTone(220, 'sine', 0.6, 0.12, 0);
-  playTone(330, 'sine', 0.5, 0.08, 0.1);
-  playTone(440, 'sine', 0.4, 0.06, 0.2);
-  playTone(880, 'sine', 0.8, 0.05, 0.35);
-}
-
-// Sonido al ir al login
-function soundPortal() {
-  [200, 300, 450, 600, 800].forEach((f, i) => playTone(f, 'sawtooth', 0.3, 0.06, i * 0.06));
-}
-
-// Sonido login exitoso
-function soundSuccess() {
-  [523, 659, 784, 1046].forEach((f, i) => playTone(f, 'sine', 0.4, 0.1, i * 0.1));
-}
-
-// Sonido error
-function soundError() {
-  playTone(180, 'sawtooth', 0.3, 0.15, 0);
-  playTone(120, 'sawtooth', 0.4, 0.12, 0.15);
-}
-
-// Sonido abrir unidad
-function soundOpen() {
-  playTone(440, 'triangle', 0.2, 0.1, 0);
-  playTone(660, 'triangle', 0.15, 0.08, 0.08);
-}
-
-// Sonido upload completado
-function soundUpload() {
-  [392, 523, 784].forEach((f, i) => playTone(f, 'sine', 0.3, 0.09, i * 0.08));
-}
-
-// Sonido click suave
-function soundClick() {
-  playTone(600, 'sine', 0.08, 0.08, 0);
-}
-
-// ════════════════════════════════════════════
-// PARTICLES
-// ════════════════════════════════════════════
-const canvas = document.getElementById('particleCanvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-
-function rsz() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-rsz(); window.addEventListener('resize', rsz);
-
-function mkP() {
-  return {
-    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-    vx: (Math.random() - .5) * .38, vy: (Math.random() - .5) * .38 - .14,
-    sz: Math.random() * 2 + .5, al: Math.random() * .55 + .1,
-    life: Math.random() * 200 + 100, ml: 0,
-    c: Math.random() > .5 ? 'rgba(0,212,255,' : 'rgba(0,150,255,'
-  };
-}
-for (let i = 0; i < 120; i++) { const p = mkP(); p.ml = p.life; particles.push(p); }
-
-function animP() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach((p, i) => {
-    p.x += p.vx; p.y += p.vy; p.life--;
-    const a = (p.life / p.ml) * p.al;
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2);
-    ctx.fillStyle = p.c + a + ')'; ctx.fill();
-    if (p.sz > 1.5) {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.sz * 3, 0, Math.PI * 2);
-      ctx.fillStyle = p.c + (a * .11) + ')'; ctx.fill();
-    }
-    if (p.life <= 0) { particles[i] = mkP(); particles[i].ml = particles[i].life; }
+function renderUnits() {
+  const grid = document.getElementById('unitsGrid');
+  grid.innerHTML = '';
+  unitDefs.forEach(ud => {
+    const fc = getFileCount(ud.num);
+    const mp = Math.min(100, fc * 8);
+    const card = document.createElement('div');
+    card.className = `unit-card ${ud.cls} ${fc > 0 ? 'has-files' : 'no-files'}`;
+    card.onclick = () => openUnit(ud.num);
+    card.innerHTML = `
+      <div class="dome-wrapper">
+        <div class="dome-outer"></div>
+        <div class="dome-fire-ring"></div>
+        <div class="dragon-ring-outer">${dragonSVG(ud.color, ud.color2)}</div>
+        <div class="dome-inner">
+          <div class="dome-num">${ud.roman}</div>
+          <div class="dome-label">UNIDAD</div>
+        </div>
+      </div>
+      <div class="unit-info">
+        <div class="unit-title">${ud.label}</div>
+        <div class="mana-bar-wrap"><div class="mana-bar" style="width:${mp}%"></div></div>
+        <div class="mana-label">ARCHIVOS: ${fc}</div>
+      </div>`;
+    grid.appendChild(card);
   });
-  requestAnimationFrame(animP);
-}
-animP();
-
-// ════════════════════════════════════════════
-// DRAGON SVG generator
-// ════════════════════════════════════════════
-function dragonSVG(color, color2) {
-  const c = color, c2 = color2;
-  return `<svg viewBox="0 0 236 236" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="118" cy="118" r="110" fill="none" stroke="${c}" stroke-width="2.5" stroke-opacity="0.15"/>
-    <path d="M118 8 A. " fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" class="dragon-scale" style="color:${c}"/>
-    <path d="M200 45 A. " fill="none" stroke="${c}" stroke-width="5.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.9"/>
-    <path d="M226 118 A. " fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.8"/>
-    <path d="M200 191 A. " fill="none" stroke="${c}" stroke-width="4.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.7"/>
-    <path d="M118 228 A. " fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.6"/>
-    <path d="M36 191 A. " fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.5"/>
-    <path d="M10 118 A. " fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.4"/>
-    <ellipse cx="165" cy="20" rx="7" ry="4" fill="${c}" opacity="0.7" transform="rotate(30 165 20)"/>
-    <ellipse cx="210" cy="70" rx="7" ry="4" fill="${c}" opacity="0.65" transform="rotate(60 210 70)"/>
-    <ellipse cx="225" cy="135" rx="7" ry="4" fill="${c}" opacity="0.6" transform="rotate(90 225 135)"/>
-    <ellipse cx="195" cy="200" rx="7" ry="4" fill="${c}" opacity="0.55" transform="rotate(120 195 200)"/>
-    <ellipse cx="130" cy="226" rx="7" ry="4" fill="${c}" opacity="0.5" transform="rotate(150 130 226)"/>
-    <ellipse cx="55" cy="205" rx="6" ry="3.5" fill="${c}" opacity="0.4" transform="rotate(165 55 205)"/>
-    <ellipse cx="14" cy="140" rx="6" ry="3.5" fill="${c}" opacity="0.35" transform="rotate(180 14 140)"/>
-    <ellipse cx="22" cy="65" rx="5" ry="3" fill="${c}" opacity="0.3" transform="rotate(210 22 65)"/>
-    <g transform="translate(118, 8)">
-      <ellipse cx="0" cy="0" rx="14" ry="10" fill="${c}" opacity="0.95" class="dragon-head" style="color:${c}"/>
-      <path d="M-10 4 Q0 14 10 4" fill="${c2}" opacity="0.8"/>
-      <circle cx="-5" cy="-2" r="3" fill="#000" opacity="0.9"/>
-      <circle cx="-5" cy="-2" r="1.5" fill="${c2}" opacity="1"/>
-      <circle cx="-4.2" cy="-2.5" r=".6" fill="#fff" opacity=".9"/>
-      <circle cx="5" cy="-2" r="3" fill="#000" opacity="0.9"/>
-      <circle cx="5" cy="-2" r="1.5" fill="${c2}" opacity="1"/>
-      <circle cx="5.8" cy="-2.5" r=".6" fill="#fff" opacity=".9"/>
-      <path d="M-6 -8 L-10 -20 L-4 -14" fill="${c}" opacity="0.9"/>
-      <path d="M6 -8 L10 -20 L4 -14" fill="${c}" opacity="0.9"/>
-      <path d="M-2 8 Q0 14 2 8" fill="none" stroke="#ff3344" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M-1 13 L-3 17 M1 13 L3 17" stroke="#ff3344" stroke-width="1.2" stroke-linecap="round"/>
-    </g>
-    <g transform="translate(118, 18)" class="dragon-fire">
-      <ellipse cx="0" cy="0" rx="6" ry="10" fill="${c2}" opacity="0.7"/>
-      <ellipse cx="3" cy="-4" rx="3" ry="6" fill="#ffcc00" opacity="0.5"/>
-      <ellipse cx="-3" cy="-6" rx="2.5" ry="5" fill="#fff" opacity="0.3"/>
-    </g>
-    <path d="M36 45 Q20 30 8 8" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
-    <path d="M8 8 Q2 -2 14 4" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
-    <circle cx="186" cy="32" r="2.5" fill="${c2}" opacity="0.8"/>
-    <circle cx="220" cy="90" r="2" fill="${c2}" opacity="0.7"/>
-    <circle cx="222" cy="155" r="2" fill="${c2}" opacity="0.6"/>
-    <circle cx="170" cy="212" r="2" fill="${c2}" opacity="0.5"/>
-  </svg>`;
 }
 
 // ════════════════════════════════════════════
-// STATE
+// PUBLIC MODAL (landing → ver archivos sin login)
 // ════════════════════════════════════════════
-const ADMIN = { user: 'kevin', pass: 'upla' };
-let state = {
-  currentUser: localStorage.getItem('arcana_user') || null,
-  isAdmin: localStorage.getItem('arcana_role') === 'admin',
-  isViewer: localStorage.getItem('arcana_role') === 'viewer',
-  files: {}
-};
-let currentUnit = 1, currentWeek = 1, editingFileId = null;
-let publicCurrentUnit = 1, publicCurrentWeek = 1;
-
-// ════════════════════════════════════════════
-// UNIT DEFS
-// ════════════════════════════════════════════
-const unitDefs = [
-  { num: 1, roman: 'I',   label: 'UNIDAD 1', cls: 'unit-1', mcls: 'modal-u1', color: '#00aaff', color2: '#00ffee' },
-  { num: 2, roman: 'II',  label: 'UNIDAD 2', cls: 'unit-2', mcls: 'modal-u2', color: '#aa00ff', color2: '#dd88ff' },
-  { num: 3, roman: 'III', label: 'UNIDAD 3', cls: 'unit-3', mcls: 'modal-u3', color: '#00ff88', color2: '#aaffdd' },
-  { num: 4, roman: 'IV',  label: 'UNIDAD 4',  cls: 'unit-4', mcls: 'modal-u4', color: '#ff3344', color2: '#ff9966' },
-];
-
-// ════════════════════════════════════════════
-// TRANSITION
-// ════════════════════════════════════════════
-function showTransition(text, callback, delay = 900) {
-  const ov = document.getElementById('transitionOverlay');
-  const tx = document.getElementById('transitionText');
-  tx.textContent = text;
-  ov.classList.add('active');
-  setTimeout(() => {
-    callback();
-    setTimeout(() => ov.classList.remove('active'), 500);
-  }, delay);
+function openPublicUnit(n) {
+  soundOpen();
+  publicCurrentUnit = n; publicCurrentWeek = 1;
+  const ud = unitDefs[n - 1];
+  const box = document.getElementById('publicModalBox');
+  box.className = `modal-box ${ud.mcls}`;
+  document.getElementById('pubModalDome').textContent = ud.roman;
+  document.getElementById('pubModalTitle').textContent = `UNIDAD ${ud.roman}`;
+  document.getElementById('pubModalSub').textContent = ud.label;
+  document.querySelectorAll('#pubWeekTabs .week-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.getElementById('publicModal').classList.add('open');
+  renderPublicWeekContent();
 }
 
-// ════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════
-function goToLogin() {
-  soundPortal();
-  showTransition('ACCEDIENDO AL SISTEMA...', () => {
-    document.getElementById('landingScreen').classList.remove('active');
-    document.getElementById('loginScreen').classList.add('active');
-    document.querySelector('.arcana-logo').style.animation = 'none';
-    setTimeout(() => document.querySelector('.arcana-logo').style.animation = '', 50);
-  }, 800);
+function closePublicModal() {
+  document.getElementById('publicModal').classList.remove('open');
 }
 
-function goToLanding() {
+function switchPublicWeek(w) {
   soundClick();
-  showTransition('REGRESANDO AL INICIO...', () => {
-    document.getElementById('loginScreen').classList.remove('active');
+  publicCurrentWeek = w;
+  document.querySelectorAll('#pubWeekTabs .week-tab').forEach((t, i) => t.classList.toggle('active', i === w - 1));
+  renderPublicWeekContent();
+}
+
+function renderPublicWeekContent() {
+  const body = document.getElementById('pubModalBody');
+  const key = `u${publicCurrentUnit}_w${publicCurrentWeek}`;
+  const files = state.files[key] || [];
+  let html = '<div class="files-list">';
+  if (files.length === 0) {
+    html += `<div class="empty-state">
+      <div class="es-icon">◌</div>
+      <div>NO HAY ARCHIVOS EN ESTA SEMANA</div>
+      <div style="margin-top:7px;font-size:.62rem;opacity:.45;">El administrador aún no ha subido archivos aquí</div>
+    </div>`;
+  } else {
+    files.forEach(f => {
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      html += `
+        <div class="file-item">
+          <div class="file-icon">${getFileIcon(ext)}</div>
+          <div class="file-info">
+            <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
+            <div class="file-meta">${f.size} · ${f.date}${f.desc ? ' · <em>' + esc(f.desc) + '</em>' : ''}</div>
+          </div>
+          <div class="file-actions">
+            <button class="btn-fa btn-dl" onclick="downloadPublicFile('${f.id}')">⬇ DL</button>
+          </div>
+        </div>`;
+    });
+  }
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function downloadPublicFile(id) {
+  const key = `u${publicCurrentUnit}_w${publicCurrentWeek}`;
+  const f = (state.files[key] || []).find(x => x.id === id);
+  if (!f || !f.url) return;
+  const a = document.createElement('a');
+  a.href = f.url; a.download = f.name; a.target = '_blank'; a.click();
+  soundClick();
+  showToast('⬇ Descargando: ' + f.name);
+}
+
+// ════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════
+function switchAuthTab(tab) {
+  soundClick();
+  document.querySelectorAll('.tab-btn').forEach((b, i) =>
+    b.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1))
+  );
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function selectRole(r) {
+  if (r === 'admin_attempt') { soundError(); showToast('♛ El rol Administrador es único y ya está asignado', 'tw'); }
+}
+
+async function handleLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  if (!u || !p) { soundError(); err.textContent = '⚠ Completa los campos'; return; }
+
+  if (u === ADMIN.user && p === ADMIN.pass) {
+    soundSuccess();
+    localStorage.setItem('arcana_user', u);
+    localStorage.setItem('arcana_role', 'admin');
+    state.currentUser = u; state.isAdmin = true; state.isViewer = false;
+    showTransition('⚡ ACCESO CONCEDIDO — BIENVENIDO, ADMINISTRADOR', () => enterMain(), 1000);
+    return;
+  }
+
+  err.textContent = '⟳ Verificando...';
+  
+  try {
+    const { data, error } = await sb.from('usuarios').select('*').eq('nombre_de_usuario', u).eq('texto_de_contraseña', p).single();
+
+    if (error || !data) {
+      soundError();
+      err.textContent = '✕ Usuario no reconocido en el sistema';
+      console.error('Error login:', error);
+    } else {
+      soundSuccess();
+      localStorage.setItem('arcana_user', u);
+      localStorage.setItem('arcana_role', 'viewer');
+      state.currentUser = u; state.isAdmin = false; state.isViewer = true;
+      showTransition('👁 ARCHIVOS CARGANDO — BIENVENIDO, VISUALIZADOR', () => enterMain(), 1000);
+    }
+  } catch (e) {
+    soundError();
+    err.textContent = '✕ Error de conexión';
+    console.error('Exception login:', e);
+  }
+}
+
+async function handleRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value;
+  const p2 = document.getElementById('regPass2').value;
+  const err = document.getElementById('registerError');
+  if (!u || !p) { soundError(); err.textContent = '⚠ Completa todos los campos'; return; }
+  if (p !== p2) { soundError(); err.textContent = '✕ Las claves no coinciden'; return; }
+  if (u === ADMIN.user) { soundError(); err.textContent = '✕ Nombre reservado del sistema'; return; }
+
+  err.textContent = '⟳ Creando usuario...';
+  
+  try {
+    const { error } = await sb.from('usuarios').insert({ 
+      nombre_de_usuario: u, 
+      texto_de_contraseña: p, 
+      texto_del_rol: 'visor' 
+    });
+
+    if (error) {
+      soundError();
+      err.textContent = error.code === '23505' ? '✕ Usuario ya existe' : '✕ Error: ' + error.message;
+      console.error('Error registro:', error);
+    } else {
+      soundSuccess();
+      showToast('✦ Visualizador creado. ¡Ya puedes acceder!');
+      switchAuthTab('login');
+      document.getElementById('loginUser').value = u;
+      err.textContent = '';
+    }
+  } catch (e) {
+    soundError();
+    err.textContent = '✕ Error de conexión';
+    console.error('Exception registro:', e);
+  }
+}
+
+function handleLogout() {
+  soundClick();
+  localStorage.removeItem('arcana_user');
+  localStorage.removeItem('arcana_role');
+  state.currentUser = null; state.isAdmin = false; state.isViewer = false; state.files = {};
+  showTransition('CERRANDO SESIÓN...', () => {
+    document.getElementById('mainScreen').classList.remove('active');
     document.getElementById('landingScreen').classList.add('active');
     renderLandingUnits();
+    ['loginUser', 'loginPass'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('loginError').textContent = '';
   }, 600);
+}
+
+// ════════════════════════════════════════════
+// SUPABASE — CARGAR ARCHIVOS — ✅ CORREGIDO
+// ════════════════════════════════════════════
+async function loadAllFiles() {
+  console.log('🔄 Cargando archivos desde Supabase...');
+  
+  try {
+    const { data, error } = await sb.from('archivos').select('*').order('created_at', { ascending: true });
+    
+    if (error) { 
+      console.error('❌ Error cargando archivos:', error);
+      setSyncStatus('err', 'ERROR BD'); 
+      showToast('✕ Error cargando archivos: ' + error.message, 'te'); 
+      return; 
+    }
+    
+    console.log('✅ Archivos recibidos de Supabase:', data);
+    
+    state.files = {};
+    (data || []).forEach(f => {
+      const key = `u${f.unidad}_w${f.semana}`;
+      if (!state.files[key]) state.files[key] = [];
+      state.files[key].push({
+        id: f.id, 
+        name: f.nombre, 
+        desc: f.texto_de_descripción || '',
+        url: f.file_url, 
+        storage_path: f.storage_path,
+        size: f.size, 
+        date: f.upload_date
+      });
+    });
+    
+    console.log('📦 Estado de archivos actualizado:', state.files);
+    setSyncStatus('ok', '✓ SYNC');
+  } catch (e) {
+    console.error('❌ Exception cargando archivos:', e);
+    setSyncStatus('err', 'ERROR');
+    showToast('✕ Error de conexión', 'te');
+  }
+}
+
+// ════════════════════════════════════════════
+// ENTER MAIN
+// ════════════════════════════════════════════
+async function enterMain() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('landingScreen').classList.remove('active');
+  document.getElementById('mainScreen').classList.add('active');
+  document.getElementById('headerUsername').textContent = state.currentUser.toUpperCase();
+  const badge = document.getElementById('userBadge');
+  const crown = document.getElementById('headerCrown');
+  if (state.isAdmin) {
+    badge.className = 'user-badge badge-admin'; crown.textContent = '♛ ';
+    document.getElementById('btnShare').style.display = '';
+    document.getElementById('btnSync').style.display = 'none';
+    document.getElementById('btnImport').style.display = 'none';
+  } else {
+    badge.className = 'user-badge badge-viewer'; crown.textContent = '👁 ';
+    document.getElementById('btnShare').style.display = 'none';
+    document.getElementById('btnSync').style.display = '';
+    document.getElementById('btnImport').style.display = 'none';
+  }
+  setSyncStatus('ing', 'CARGANDO...');
+  await loadAllFiles();
+  renderUnits();
+  
+  // Iniciar auto-refresh para viewers
+  if (state.isViewer) {
+    startAutoRefresh();
+  }
 }
 // ════════════════════════════════════════════
 // UNIT MODAL (admin/viewer)
@@ -558,7 +631,7 @@ function renderWeekContent() {
 }
 
 // ════════════════════════════════════════════
-// FILE UPLOAD (admin) — ✅ VERSIÓN CORREGIDA CON TRY/CATCH
+// FILE UPLOAD (admin) — ✅ VERSIÓN CORREGIDA
 // ════════════════════════════════════════════
 async function handleFiles(fileList) {
   if (!state.isAdmin) return;
@@ -603,19 +676,19 @@ async function handleFiles(fileList) {
 
       // 3. Guardar metadata en base de datos
       const meta = {
-        unit: currentUnit, 
-        week: currentWeek, 
-        name: file.name,
+        unidad: currentUnit, 
+        semana: currentWeek, 
+        nombre: file.name,
         file_url: url, 
         storage_path: path,
         size: formatSize(file.size), 
         upload_date: new Date().toLocaleDateString('es-ES'),
-        description: ''
+        texto_de_descripción: ''
       };
 
       console.log('💾 Guardando metadata:', meta);
 
-      const { data: dbData, error: dbErr } = await sb.from('files').insert(meta).select().single();
+      const { data: dbData, error: dbErr } = await sb.from('archivos').insert(meta).select().single();
       
       if (dbErr) {
         console.error('❌ Error guardando metadata:', dbErr);
@@ -642,7 +715,7 @@ async function handleFiles(fileList) {
     console.log('🎉 Subida completada. Recargando archivos...');
     showToast(`✓ ${uploadedCount} archivo(s) subido(s)`);
     
-    // ✅ SOLUCIÓN: Recargar TODOS los archivos desde la base de datos
+    // ✅ Recargar TODOS los archivos desde la base de datos
     await loadAllFiles();
     
     // ✅ Actualizar TODAS las vistas
@@ -697,7 +770,7 @@ async function saveEdit() {
   console.log('✏️ Editando archivo:', editingFileId);
 
   try {
-    const { error } = await sb.from('files').update({ name: newName, description: newDesc }).eq('id', editingFileId);
+    const { error } = await sb.from('archivos').update({ nombre: newName, texto_de_descripción: newDesc }).eq('id', editingFileId);
     
     if (error) {
       console.error('❌ Error actualizando:', error);
@@ -739,7 +812,7 @@ async function deleteFile(id) {
     if (storageErr) console.warn('⚠️ Error eliminando storage:', storageErr);
 
     // Eliminar de base de datos
-    const { error: dbErr } = await sb.from('files').delete().eq('id', id);
+    const { error: dbErr } = await sb.from('archivos').delete().eq('id', id);
     
     if (dbErr) {
       console.error('❌ Error eliminando de BD:', dbErr);
@@ -898,16 +971,16 @@ async function init() {
   console.log('📥 Cargando archivos públicos...');
   
   try {
-    const { data, error } = await sb.from('files').select('*').order('created_at', { ascending: true });
+    const { data, error } = await sb.from('archivos').select('*').order('created_at', { ascending: true });
     
     if (!error && data) {
       console.log('✅ Archivos públicos cargados:', data.length, 'archivos');
       state.files = {};
       data.forEach(f => {
-        const key = `u${f.unit}_w${f.week}`;
+        const key = `u${f.unidad}_w${f.semana}`;
         if (!state.files[key]) state.files[key] = [];
         state.files[key].push({
-          id: f.id, name: f.name, desc: f.description || '',
+          id: f.id, name: f.nombre, desc: f.texto_de_descripción || '',
           url: f.file_url, storage_path: f.storage_path,
           size: f.size, date: f.upload_date
         });
