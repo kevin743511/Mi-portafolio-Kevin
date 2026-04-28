@@ -101,6 +101,97 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
 }
 .btn-el-icon{font-size:1rem;}
 
+/* ══════════════════════════════
+   STUDENT INFO CARD
+══════════════════════════════ */
+.student-info-card{
+  max-width:780px;width:100%;
+  background:linear-gradient(135deg,rgba(0,15,35,.92) 0%,rgba(0,5,20,.95) 100%);
+  border:1px solid rgba(0,212,255,.25);border-radius:16px;
+  padding:28px 32px;margin-bottom:40px;
+  display:flex;gap:26px;align-items:center;
+  box-shadow:0 8px 32px rgba(0,212,255,.15);
+  animation:fadeInUp .9s .2s cubic-bezier(.34,1.56,.64,1) both;
+  position:relative;overflow:hidden;
+}
+.student-info-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--arcana-blue),var(--arcana-cyan),var(--arcana-blue),transparent);
+  animation:scanLine 3s ease-in-out infinite;
+}
+@keyframes scanLine{0%,100%{opacity:.4;}50%{opacity:1;}}
+
+.student-avatar{
+  flex-shrink:0;width:140px;height:140px;
+  background:radial-gradient(circle at 30% 30%,rgba(0,170,255,.15) 0%,rgba(0,5,15,.8) 70%);
+  border:2px solid rgba(0,212,255,.3);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  box-shadow:0 0 30px rgba(0,212,255,.2),inset 0 0 20px rgba(0,212,255,.1);
+}
+.student-avatar::before{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(0,212,255,.15);
+  animation:domeGlow 2s ease-in-out infinite;
+}
+
+.juggernaut-guide{
+  width:90px;height:110px;
+  animation:juggFloat 3s ease-in-out infinite;
+}
+@keyframes juggFloat{
+  0%,100%{transform:translateY(0) rotate(-2deg);}
+  50%{transform:translateY(-8px) rotate(2deg);}
+}
+.jugg-aura{
+  animation:juggAura 2s ease-in-out infinite;
+}
+@keyframes juggAura{
+  0%,100%{opacity:.2;transform:scale(1);}
+  50%{opacity:.5;transform:scale(1.1);}
+}
+
+.student-details{flex:1;min-width:0;}
+.student-name{
+  font-family:'Cinzel Decorative',cursive;font-size:1.35rem;
+  background:linear-gradient(135deg,var(--arcana-blue),var(--arcana-cyan),var(--arcana-gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:2px;margin-bottom:10px;font-weight:900;
+}
+.student-meta{
+  display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap;
+}
+.meta-item{
+  font-family:'Share Tech Mono',monospace;font-size:.72rem;
+  color:var(--text-dim);letter-spacing:1px;
+  display:flex;align-items:center;gap:6px;
+}
+.meta-icon{font-size:1rem;}
+
+.student-career{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;background:rgba(0,212,255,.06);
+  border-left:3px solid var(--arcana-blue);border-radius:6px;
+  margin-bottom:14px;
+}
+.career-icon{font-size:1.8rem;}
+.career-faculty{
+  font-family:'Share Tech Mono',monospace;font-size:.68rem;
+  color:var(--arcana-gold);letter-spacing:2px;margin-bottom:3px;
+}
+.career-name{
+  font-family:'Rajdhani',sans-serif;font-size:.82rem;
+  color:var(--arcana-cyan);font-weight:600;letter-spacing:1px;
+}
+
+.student-vision{
+  font-family:'Rajdhani',sans-serif;font-size:.78rem;
+  color:var(--text-dim);line-height:1.6;
+  padding:10px 14px;background:rgba(0,20,40,.4);
+  border-radius:6px;border:1px solid rgba(0,212,255,.08);
+}
+.student-vision p{margin:0;}
+
 /* Tagline */
 .landing-tagline{
   font-family:'Cinzel Decorative',cursive;font-size:1rem;
@@ -118,7 +209,6 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
   gap:44px;max-width:900px;width:100%;margin:0 auto;
   animation:fadeInUp 1s .5s cubic-bezier(.34,1.56,.64,1) both;
 }
-
 /* ══════════════════════════════
    DRAGON DOME — el núcleo visual
 ══════════════════════════════ */
@@ -199,6 +289,38 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
 .unit-4 .dome-fire-ring{box-shadow:0 0 14px var(--unit4-color);border:1px solid rgba(255,50,68,.2);border-radius:50%;}
 @keyframes fireRingPulse{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.04);}}
 
+/* ══════════════════════════════
+   FIRE EFFECTS ON DOMES (active/inactive)
+══════════════════════════════ */
+.unit-card.has-files .dome-fire-ring{
+  animation:fireRingActive 1s ease-in-out infinite;
+  box-shadow:0 0 20px currentColor,0 0 40px currentColor,inset 0 0 15px rgba(255,100,0,.3)!important;
+}
+@keyframes fireRingActive{
+  0%,100%{opacity:.8;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.06);}
+}
+
+.unit-card.has-files .dome-outer::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  background:radial-gradient(circle,transparent 60%,rgba(255,100,0,.15) 80%,rgba(255,200,0,.25) 100%);
+  animation:fireGlow 1.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes fireGlow{
+  0%,100%{opacity:.5;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.08);}
+}
+
+.unit-card.no-files .dome-fire-ring{
+  opacity:.3;
+  box-shadow:0 0 5px rgba(100,100,100,.2)!important;
+}
+.unit-card.no-files .dome-outer{
+  opacity:.6;
+  filter:grayscale(.5);
+}
+
 .dome-num{font-family:'Cinzel Decorative',cursive;font-size:2.5rem;font-weight:900;line-height:1;margin-bottom:4px;}
 .unit-1 .dome-num{color:var(--unit1-color);text-shadow:0 0 20px var(--unit1-color);}
 .unit-2 .dome-num{color:var(--unit2-color);text-shadow:0 0 20px var(--unit2-color);}
@@ -267,7 +389,6 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
 
 .login-box{background:linear-gradient(160deg,rgba(0,8,20,.97) 0%,rgba(0,3,10,.99) 100%);border:1px solid rgba(255,102,0,.3);border-radius:12px;padding:30px 26px;position:relative;overflow:hidden;}
 .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--fire-orange),var(--fire-yellow),var(--fire-orange),transparent);animation:scanLine 3s ease-in-out infinite;}
-@keyframes scanLine{0%,100%{opacity:.4;}50%{opacity:1;}}
 
 .tab-selector{display:flex;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,102,0,.2);}
 .tab-btn{flex:1;padding:9px;background:transparent;border:none;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .3s;text-transform:uppercase;}
@@ -301,7 +422,6 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
   transition:all .2s;
 }
 .btn-back-landing:hover{color:var(--arcana-cyan);border-color:rgba(0,212,255,.4);}
-
 /* ══════════════════════════════
    MAIN SCREEN
 ══════════════════════════════ */
@@ -356,6 +476,7 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
 .modal-u3 .modal-dome-mini{background:conic-gradient(var(--unit3-color),transparent,var(--unit3-color));box-shadow:0 0 16px var(--unit3-color);}
 .modal-u4 .modal-dome-mini{background:conic-gradient(var(--unit4-color),transparent,var(--unit4-color));box-shadow:0 0 16px var(--unit4-color);}
 .modal-title{font-family:'Cinzel Decorative',cursive;font-size:.92rem;letter-spacing:3px;}
+.modal-sub{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--text-dim);letter-spacing:2px;margin-top:2px;}
 .modal-close{width:30px;height:30px;background:rgba(255,50,0,.15);border:1px solid rgba(255,50,0,.3);border-radius:6px;color:#ff7755;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .modal-close:hover{background:rgba(255,50,0,.3);}
 
@@ -460,4 +581,9 @@ body{background:var(--void-black);font-family:'Rajdhani',sans-serif;color:var(--
   .fire-container{width:90vw;}
   .landing-logo h1{font-size:1.2rem;}
   .dome-wrapper{width:160px;height:160px;}
+  .student-info-card{flex-direction:column;text-align:center;padding:22px 18px;}
+  .student-avatar{width:120px;height:120px;}
+  .juggernaut-guide{width:75px;height:95px;}
+  .student-meta{justify-content:center;}
+  .student-career{flex-direction:column;text-align:center;}
 }
