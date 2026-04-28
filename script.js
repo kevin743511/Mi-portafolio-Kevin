@@ -2,7 +2,7 @@
 // SUPABASE CONFIG
 // ════════════════════════════════════════════
 const SUPABASE_URL = 'https://kdsfvnwrhtlfryqlrhya.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_Tzr847YIW5vuNjvWBXAL7w_iUbRgtyN';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkc2Z2bndyaHRsZnJ5cWxyaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4MjI1NzcsImV4cCI6MjA1MjM5ODU3N30.Tzr847YIW5vuNjvWBXAL7w_iUbRgtyN';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ════════════════════════════════════════════
@@ -113,12 +113,9 @@ animP();
 // DRAGON SVG generator
 // ════════════════════════════════════════════
 function dragonSVG(color, color2) {
-  // Dragón hecho con paths SVG circulares — cuerpo segmentado alrededor del domo
   const c = color, c2 = color2;
   return `<svg viewBox="0 0 236 236" xmlns="http://www.w3.org/2000/svg">
-    <!-- Cuerpo del dragón: segmentos en arco -->
     <circle cx="118" cy="118" r="110" fill="none" stroke="${c}" stroke-width="2.5" stroke-opacity="0.15"/>
-    <!-- Segmentos escamados -->
     <path d="M118 8 A. " fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" class="dragon-scale" style="color:${c}"/>
     <path d="M200 45 A. " fill="none" stroke="${c}" stroke-width="5.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.9"/>
     <path d="M226 118 A. " fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.8"/>
@@ -126,8 +123,6 @@ function dragonSVG(color, color2) {
     <path d="M118 228 A. " fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.6"/>
     <path d="M36 191 A. " fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.5"/>
     <path d="M10 118 A. " fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" class="dragon-scale" stroke-opacity="0.4"/>
-
-    <!-- Escamas decorativas a lo largo del cuerpo -->
     <ellipse cx="165" cy="20" rx="7" ry="4" fill="${c}" opacity="0.7" transform="rotate(30 165 20)"/>
     <ellipse cx="210" cy="70" rx="7" ry="4" fill="${c}" opacity="0.65" transform="rotate(60 210 70)"/>
     <ellipse cx="225" cy="135" rx="7" ry="4" fill="${c}" opacity="0.6" transform="rotate(90 225 135)"/>
@@ -136,41 +131,27 @@ function dragonSVG(color, color2) {
     <ellipse cx="55" cy="205" rx="6" ry="3.5" fill="${c}" opacity="0.4" transform="rotate(165 55 205)"/>
     <ellipse cx="14" cy="140" rx="6" ry="3.5" fill="${c}" opacity="0.35" transform="rotate(180 14 140)"/>
     <ellipse cx="22" cy="65" rx="5" ry="3" fill="${c}" opacity="0.3" transform="rotate(210 22 65)"/>
-
-    <!-- CABEZA del dragón -->
     <g transform="translate(118, 8)">
-      <!-- Cráneo -->
       <ellipse cx="0" cy="0" rx="14" ry="10" fill="${c}" opacity="0.95" class="dragon-head" style="color:${c}"/>
-      <!-- Mandíbula -->
       <path d="M-10 4 Q0 14 10 4" fill="${c2}" opacity="0.8"/>
-      <!-- Ojo izquierdo -->
       <circle cx="-5" cy="-2" r="3" fill="#000" opacity="0.9"/>
       <circle cx="-5" cy="-2" r="1.5" fill="${c2}" opacity="1"/>
       <circle cx="-4.2" cy="-2.5" r=".6" fill="#fff" opacity=".9"/>
-      <!-- Ojo derecho -->
       <circle cx="5" cy="-2" r="3" fill="#000" opacity="0.9"/>
       <circle cx="5" cy="-2" r="1.5" fill="${c2}" opacity="1"/>
       <circle cx="5.8" cy="-2.5" r=".6" fill="#fff" opacity=".9"/>
-      <!-- Cuernos -->
       <path d="M-6 -8 L-10 -20 L-4 -14" fill="${c}" opacity="0.9"/>
       <path d="M6 -8 L10 -20 L4 -14" fill="${c}" opacity="0.9"/>
-      <!-- Lengua -->
       <path d="M-2 8 Q0 14 2 8" fill="none" stroke="#ff3344" stroke-width="1.5" stroke-linecap="round"/>
       <path d="M-1 13 L-3 17 M1 13 L3 17" stroke="#ff3344" stroke-width="1.2" stroke-linecap="round"/>
     </g>
-
-    <!-- FUEGO que sale de la boca -->
     <g transform="translate(118, 18)" class="dragon-fire">
       <ellipse cx="0" cy="0" rx="6" ry="10" fill="${c2}" opacity="0.7"/>
       <ellipse cx="3" cy="-4" rx="3" ry="6" fill="#ffcc00" opacity="0.5"/>
       <ellipse cx="-3" cy="-6" rx="2.5" ry="5" fill="#fff" opacity="0.3"/>
     </g>
-
-    <!-- Cola del dragón (desvanece) -->
     <path d="M36 45 Q20 30 8 8" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
     <path d="M8 8 Q2 -2 14 4" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
-
-    <!-- Destellos en el cuerpo -->
     <circle cx="186" cy="32" r="2.5" fill="${c2}" opacity="0.8"/>
     <circle cx="220" cy="90" r="2" fill="${c2}" opacity="0.7"/>
     <circle cx="222" cy="155" r="2" fill="${c2}" opacity="0.6"/>
@@ -223,7 +204,6 @@ function goToLogin() {
   showTransition('ACCEDIENDO AL SISTEMA...', () => {
     document.getElementById('landingScreen').classList.remove('active');
     document.getElementById('loginScreen').classList.add('active');
-    // Animación entrada login
     document.querySelector('.arcana-logo').style.animation = 'none';
     setTimeout(() => document.querySelector('.arcana-logo').style.animation = '', 50);
   }, 800);
@@ -461,8 +441,18 @@ function handleLogout() {
 // SUPABASE — CARGAR ARCHIVOS
 // ════════════════════════════════════════════
 async function loadAllFiles() {
+  console.log('🔄 Cargando archivos desde Supabase...');
   const { data, error } = await sb.from('files').select('*').order('created_at', { ascending: true });
-  if (error) { setSyncStatus('err', 'ERROR BD'); showToast('✕ Error cargando archivos', 'te'); return; }
+  
+  if (error) { 
+    console.error('❌ Error cargando archivos:', error);
+    setSyncStatus('err', 'ERROR BD'); 
+    showToast('✕ Error cargando archivos', 'te'); 
+    return; 
+  }
+  
+  console.log('✅ Archivos recibidos de Supabase:', data);
+  
   state.files = {};
   (data || []).forEach(f => {
     const key = `u${f.unit}_w${f.week}`;
@@ -473,6 +463,8 @@ async function loadAllFiles() {
       size: f.size, date: f.upload_date
     });
   });
+  
+  console.log('📦 Estado de archivos actualizado:', state.files);
   setSyncStatus('ok', '✓ SYNC');
 }
 
@@ -533,6 +525,10 @@ function renderWeekContent() {
   const body = document.getElementById('modalBody');
   const key = `u${currentUnit}_w${currentWeek}`;
   const files = state.files[key] || [];
+  
+  console.log('🔍 Renderizando semana:', key);
+  console.log('📦 Archivos encontrados:', files);
+  
   let html = '';
 
   if (state.isAdmin) {
@@ -589,65 +585,97 @@ function renderWeekContent() {
 }
 
 // ════════════════════════════════════════════
-// FILE UPLOAD (admin)
+// FILE UPLOAD (admin) — ✅ VERSIÓN CORREGIDA
 // ════════════════════════════════════════════
 async function handleFiles(fileList) {
   if (!state.isAdmin) return;
   const files = Array.from(fileList);
   if (files.length === 0) return;
 
+  console.log('📤 Iniciando subida de', files.length, 'archivo(s)');
+
   const pw = document.getElementById('progressWrap');
   const pf = document.getElementById('progressFill');
   const pl = document.getElementById('progressLbl');
   pw.style.display = 'block';
 
+  let uploadedCount = 0;
+
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
+    console.log(`📁 Subiendo archivo ${i + 1}/${files.length}:`, file.name);
+    
     pl.textContent = `SUBIENDO ${i + 1}/${files.length}: ${file.name}`;
     pf.style.width = '0%';
 
+    // 1. Subir a Storage
     const path = `u${currentUnit}/w${currentWeek}/${Date.now()}_${file.name}`;
     const { data: upData, error: upErr } = await sb.storage.from('arcana-files').upload(path, file);
 
     if (upErr) {
+      console.error('❌ Error subiendo a storage:', upErr);
       soundError();
       showToast('✕ Error subiendo: ' + file.name, 'te');
       continue;
     }
 
+    console.log('✅ Archivo subido a storage:', path);
     pf.style.width = '50%';
+
+    // 2. Obtener URL pública
     const { data: urlData } = sb.storage.from('arcana-files').getPublicUrl(path);
     const url = urlData.publicUrl;
+    console.log('🔗 URL pública obtenida:', url);
 
+    // 3. Guardar metadata en base de datos
     const meta = {
-      unit: currentUnit, week: currentWeek, name: file.name,
-      file_url: url, storage_path: path,
-      size: formatSize(file.size), upload_date: new Date().toLocaleDateString('es-ES'),
+      unit: currentUnit, 
+      week: currentWeek, 
+      name: file.name,
+      file_url: url, 
+      storage_path: path,
+      size: formatSize(file.size), 
+      upload_date: new Date().toLocaleDateString('es-ES'),
       description: ''
     };
 
+    console.log('💾 Guardando metadata:', meta);
+
     const { data: dbData, error: dbErr } = await sb.from('files').insert(meta).select().single();
+    
     if (dbErr) {
+      console.error('❌ Error guardando metadata:', dbErr);
       soundError();
       showToast('✕ Error guardando metadata: ' + file.name, 'te');
     } else {
-      const key = `u${currentUnit}_w${currentWeek}`;
-      if (!state.files[key]) state.files[key] = [];
-      state.files[key].push({
-        id: dbData.id, name: dbData.name, desc: dbData.description || '',
-        url: dbData.file_url, storage_path: dbData.storage_path,
-        size: dbData.size, date: dbData.upload_date
-      });
+      console.log('✅ Metadata guardada:', dbData);
+      uploadedCount++;
       soundUpload();
     }
+    
     pf.style.width = '100%';
   }
 
   pw.style.display = 'none';
-  showToast(`✓ ${files.length} archivo(s) subido(s)`);
-  renderWeekContent();
-  renderUnits();
-  renderLandingUnits();
+
+  if (uploadedCount > 0) {
+    console.log('🎉 Subida completada. Recargando archivos...');
+    showToast(`✓ ${uploadedCount} archivo(s) subido(s)`);
+    
+    // ✅ SOLUCIÓN: Recargar TODOS los archivos desde la base de datos
+    await loadAllFiles();
+    
+    // ✅ Actualizar TODAS las vistas
+    renderWeekContent();
+    renderUnits();
+    renderLandingUnits();
+    
+    console.log('✅ Vistas actualizadas');
+  }
+  
+  // ✅ Resetear el input file
+  const fileInput = document.getElementById('fileInput');
+  if (fileInput) fileInput.value = '';
 }
 
 // ════════════════════════════════════════════
@@ -686,16 +714,21 @@ async function saveEdit() {
   const newDesc = document.getElementById('editFileDesc').value.trim();
   if (!newName) { soundError(); showToast('✕ El nombre no puede estar vacío', 'te'); return; }
 
+  console.log('✏️ Editando archivo:', editingFileId);
+
   const { error } = await sb.from('files').update({ name: newName, description: newDesc }).eq('id', editingFileId);
+  
   if (error) {
+    console.error('❌ Error actualizando:', error);
     soundError();
     showToast('✕ Error actualizando archivo', 'te');
   } else {
+    console.log('✅ Archivo actualizado');
     soundSuccess();
     showToast('✓ Archivo actualizado');
-    const key = `u${currentUnit}_w${currentWeek}`;
-    const f = (state.files[key] || []).find(x => x.id === editingFileId);
-    if (f) { f.name = newName; f.desc = newDesc; }
+    
+    // ✅ Recargar archivos y actualizar vistas
+    await loadAllFiles();
     closeEdit();
     renderWeekContent();
     renderUnits();
@@ -708,21 +741,30 @@ async function deleteFile(id) {
   if (!confirm('¿Eliminar este archivo permanentemente?')) return;
   soundClick();
 
+  console.log('🗑️ Eliminando archivo:', id);
+
   const key = `u${currentUnit}_w${currentWeek}`;
   const f = (state.files[key] || []).find(x => x.id === id);
   if (!f) return;
 
+  // Eliminar de storage
   const { error: storageErr } = await sb.storage.from('arcana-files').remove([f.storage_path]);
-  if (storageErr) console.warn('Error eliminando storage:', storageErr);
+  if (storageErr) console.warn('⚠️ Error eliminando storage:', storageErr);
 
+  // Eliminar de base de datos
   const { error: dbErr } = await sb.from('files').delete().eq('id', id);
+  
   if (dbErr) {
+    console.error('❌ Error eliminando de BD:', dbErr);
     soundError();
     showToast('✕ Error eliminando archivo', 'te');
   } else {
+    console.log('✅ Archivo eliminado');
     soundSuccess();
     showToast('✓ Archivo eliminado');
-    state.files[key] = state.files[key].filter(x => x.id !== id);
+    
+    // ✅ Recargar archivos y actualizar vistas
+    await loadAllFiles();
     renderWeekContent();
     renderUnits();
     renderLandingUnits();
@@ -819,13 +861,37 @@ function getFileIcon(ext) {
 }
 
 // ════════════════════════════════════════════
+// DEBUG FUNCTION (opcional - para diagnóstico)
+// ════════════════════════════════════════════
+function debugState() {
+  console.log('═══════════════════════════════════════');
+  console.log('📊 ESTADO ACTUAL DEL SISTEMA');
+  console.log('═══════════════════════════════════════');
+  console.log('👤 Usuario:', state.currentUser);
+  console.log('🔑 Es Admin:', state.isAdmin);
+  console.log('👁 Es Viewer:', state.isViewer);
+  console.log('🎯 Unidad actual:', currentUnit);
+  console.log('📅 Semana actual:', currentWeek);
+  console.log('🔑 Key actual:', `u${currentUnit}_w${currentWeek}`);
+  console.log('───────────────────────────────────────');
+  console.log('📦 ARCHIVOS EN MEMORIA:');
+  console.log(state.files);
+  console.log('───────────────────────────────────────');
+  console.log('📁 Archivos en esta semana:');
+  console.log(state.files[`u${currentUnit}_w${currentWeek}`] || []);
+  console.log('═══════════════════════════════════════');
+}
+
+// ════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════
 async function init() {
+  console.log('🚀 Iniciando KVN.UPLA System...');
   soundLanding();
   
   // Si ya hay sesión activa, ir directo a main
   if (state.currentUser) {
+    console.log('🔄 Sesión activa detectada:', state.currentUser);
     showTransition('RESTAURANDO SESIÓN...', async () => {
       await enterMain();
     }, 800);
@@ -833,11 +899,15 @@ async function init() {
   }
 
   // Sino, mostrar landing
+  console.log('🏠 Mostrando landing page');
   document.getElementById('landingScreen').classList.add('active');
   
   // Cargar archivos públicos para el landing
+  console.log('📥 Cargando archivos públicos...');
   const { data, error } = await sb.from('files').select('*').order('created_at', { ascending: true });
+  
   if (!error && data) {
+    console.log('✅ Archivos públicos cargados:', data.length, 'archivos');
     state.files = {};
     data.forEach(f => {
       const key = `u${f.unit}_w${f.week}`;
@@ -848,9 +918,12 @@ async function init() {
         size: f.size, date: f.upload_date
       });
     });
+  } else if (error) {
+    console.error('❌ Error cargando archivos públicos:', error);
   }
   
   renderLandingUnits();
+  console.log('✅ Sistema iniciado correctamente');
 }
 
 // ════════════════════════════════════════════
@@ -894,6 +967,12 @@ document.addEventListener('keydown', e => {
       saveEdit();
     }
   }
+  
+  // CTRL+SHIFT+D para debug (solo en desarrollo)
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    e.preventDefault();
+    debugState();
+  }
 });
 
 // ════════════════════════════════════════════
@@ -922,6 +1001,54 @@ document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => e.preventDefault());
 
 // ════════════════════════════════════════════
+// AUTO-REFRESH PARA VIEWERS (cada 30 segundos)
+// ════════════════════════════════════════════
+let autoRefreshInterval = null;
+
+function startAutoRefresh() {
+  if (state.isViewer && !autoRefreshInterval) {
+    console.log('🔄 Auto-refresh activado (cada 30s)');
+    autoRefreshInterval = setInterval(async () => {
+      console.log('🔄 Auto-refresh ejecutándose...');
+      await loadAllFiles();
+      
+      // Solo actualizar si estamos en main screen
+      if (document.getElementById('mainScreen').classList.contains('active')) {
+        renderUnits();
+        renderLandingUnits();
+        
+        // Si hay un modal abierto, actualizarlo también
+        if (document.getElementById('unitModal').classList.contains('open')) {
+          renderWeekContent();
+        }
+      }
+    }, 30000); // 30 segundos
+  }
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval) {
+    console.log('⏹️ Auto-refresh detenido');
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
+
+// Iniciar auto-refresh cuando se entra a main
+const originalEnterMain = enterMain;
+enterMain = async function() {
+  await originalEnterMain();
+  startAutoRefresh();
+};
+
+// Detener auto-refresh al hacer logout
+const originalHandleLogout = handleLogout;
+handleLogout = function() {
+  stopAutoRefresh();
+  originalHandleLogout();
+};
+
+// ════════════════════════════════════════════
 // START APP
 // ════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', init);
@@ -941,3 +1068,8 @@ console.log('%c', '');
 console.log('%c⚠ ADVERTENCIA:', 'color:#ff3344;font-size:13px;font-weight:bold');
 console.log('%cEste sistema está protegido. No ejecutes código desconocido aquí.', 'color:#ff9966;font-size:11px');
 console.log('%cSi alguien te pidió copiar/pegar algo, probablemente sea un intento de hackeo.', 'color:#ff9966;font-size:11px');
+console.log('%c', '');
+console.log('%c💡 COMANDOS ÚTILES:', 'color:#00ff88;font-size:12px;font-weight:bold');
+console.log('%c  debugState() - Ver estado actual del sistema', 'color:#aaa;font-size:10px');
+console.log('%c  CTRL+SHIFT+D - Atajo para debugState()', 'color:#aaa;font-size:10px');
+console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color:#00aaff');
