@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════
 // SUPABASE CONFIG — ✅ CON TU API KEY CORRECTA
 // ════════════════════════════════════════════
-const SUPABASE_URL = 'https://kdsfvnwrhtlfryqlrhya.supabase.co';
+onst SUPABASE_URL = 'https://kdsfvnwrhtlfryqlrhya.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkc2Z2bndyaHRsZnJ5cWxyaHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MTY2MjgsImV4cCI6MjA5MjM5MjYyOH0.o7d7U4LWXj_n4J8BGoZYqL9AKKYdY_ydEEgZ1VabA5Q';
 
 // Verificar que Supabase esté cargado
