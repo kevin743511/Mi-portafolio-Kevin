@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KVN.UPLA — Portal Académico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Cinzel+Decorative:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- TRANSITION OVERLAY -->
+  <div class="transition-overlay" id="transitionOverlay">
+    <div class="transition-content">
+      <div class="transition-rune">◈</div>
+      <div class="transition-text" id="transitionText">CARGANDO...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       JUGGERNAUT BOT — VISIBLE Y MEJORADO
+  ══════════════════════════════════════════ -->
+  <div id="juggBot" onclick="window.juggToggle && window.juggToggle()" title="¡Habla con Yurnero!">
+    <!-- Aura de poder -->
+    <div class="jugg-aura-ring"></div>
+    <!-- Sprite del Juggernaut -->
+    <div id="juggSprite">
+      <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" class="jugg-svg">
+        <!-- Sombra/Glow base -->
+        <ellipse cx="60" cy="145" rx="28" ry="6" fill="#ff4400" opacity="0.4"/>
+        <!-- Piernas -->
+        <rect x="46" y="108" width="10" height="28" rx="4" fill="#5a1a00"/>
+        <rect x="64" y="108" width="10" height="28" rx="4" fill="#5a1a00"/>
+        <!-- Botas -->
+        <ellipse cx="51" cy="137" rx="8" ry="5" fill="#3a0800"/>
+        <ellipse cx="69" cy="137" rx="8" ry="5" fill="#3a0800"/>
+        <!-- Detalle bota -->
+        <rect x="43" y="132" width="16" height="6" rx="2" fill="#2a0500"/>
+        <rect x="61" y="132" width="16" height="6" rx="2" fill="#2a0500"/>
+        <!-- Cuerpo/Armadura -->
+        <ellipse cx="60" cy="85" rx="26" ry="32" fill="#7a2a00"/>
+        <!-- Pecho armadura -->
+        <path d="M38 72 Q60 65 82 72 L82 98 Q60 106 38 98 Z" fill="#c86a20" stroke="#8B4513" stroke-width="1.5"/>
+        <!-- Detalles pecho -->
+        <path d="M48 78 L60 74 L72 78" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="52" cy="84" r="4" fill="#ffd700" opacity="0.9"/>
+        <circle cx="68" cy="84" r="4" fill="#ffd700" opacity="0.9"/>
+        <circle cx="52" cy="84" r="2" fill="#fff8a0"/>
+        <circle cx="68" cy="84" r="2" fill="#fff8a0"/>
+        <!-- Cinturón -->
+        <rect x="38" y="97" width="44" height="8" rx="2" fill="#5a1a00"/>
+        <rect x="56" y="96" width="8" height="10" rx="1" fill="#ffd700"/>
+        <!-- Brazos -->
+        <ellipse cx="34" cy="82" rx="9" ry="18" fill="#8B4513" transform="rotate(-15 34 82)"/>
+        <ellipse cx="86" cy="82" rx="9" ry="18" fill="#8B4513" transform="rotate(15 86 82)"/>
+        <!-- Manos -->
+        <circle cx="28" cy="97" r="7" fill="#7a2a00"/>
+        <circle cx="92" cy="97" r="7" fill="#7a2a00"/>
+        <!-- Espada - izquierda -->
+        <rect x="15" y="55" width="5" height="50" rx="2" fill="#d0d0d0" transform="rotate(-20 15 55)"/>
+        <rect x="8" y="68" width="18" height="4" rx="1" fill="#ffd700" transform="rotate(-20 8 68)"/>
+        <rect x="14" y="98" width="7" height="12" rx="2" fill="#8B4513" transform="rotate(-20 14 98)"/>
+        <!-- Cabeza/Casco -->
+        <ellipse cx="60" cy="47" rx="22" ry="24" fill="#8B0000"/>
+        <!-- Casco detalles -->
+        <path d="M38 47 Q60 38 82 47" fill="none" stroke="#cc2200" stroke-width="2"/>
+        <path d="M40 52 Q60 60 80 52" fill="none" stroke="#660000" stroke-width="1.5"/>
+        <!-- Cuernos -->
+        <path d="M40 38 L26 18 L36 30 Z" fill="#8B0000" stroke="#550000" stroke-width="1"/>
+        <path d="M80 38 L94 18 L84 30 Z" fill="#8B0000" stroke="#550000" stroke-width="1"/>
+        <!-- Detalle cuernos -->
+        <line x1="33" y1="24" x2="37" y2="30" stroke="#aa2200" stroke-width="1.5"/>
+        <line x1="87" y1="24" x2="83" y2="30" stroke="#aa2200" stroke-width="1.5"/>
+        <!-- Máscara facial -->
+        <rect x="44" y="44" width="32" height="18" rx="4" fill="#2a0000" opacity="0.9"/>
+        <!-- Ojos brillantes -->
+        <ellipse cx="52" cy="52" rx="5" ry="4" fill="#ff2200"/>
+        <ellipse cx="68" cy="52" rx="5" ry="4" fill="#ff2200"/>
+        <ellipse cx="52" cy="52" rx="3" ry="2.5" fill="#ff6644"/>
+        <ellipse cx="68" cy="52" rx="3" ry="2.5" fill="#ff6644"/>
+        <circle cx="53" cy="51" r="1" fill="#ffffff" opacity="0.8"/>
+        <circle cx="69" cy="51" r="1" fill="#ffffff" opacity="0.8"/>
+        <!-- Rejillas máscara -->
+        <line x1="46" y1="56" x2="74" y2="56" stroke="#440000" stroke-width="0.8"/>
+        <line x1="46" y1="59" x2="74" y2="59" stroke="#440000" stroke-width="0.8"/>
+        <!-- Gema frontal del casco -->
+        <polygon points="60,30 64,37 60,40 56,37" fill="#ff4400" opacity="0.9"/>
+        <polygon points="60,31 63,37 60,39 57,37" fill="#ff8844"/>
+        <!-- Partículas de energía -->
+        <circle cx="20" cy="60" r="2" fill="#ff6600" opacity="0.7" class="jugg-particle p1"/>
+        <circle cx="100" cy="55" r="1.5" fill="#ff4400" opacity="0.6" class="jugg-particle p2"/>
+        <circle cx="15" cy="85" r="1.5" fill="#ffaa00" opacity="0.5" class="jugg-particle p3"/>
+        <circle cx="105" cy="80" r="2" fill="#ff6600" opacity="0.6" class="jugg-particle p4"/>
+      </svg>
+      <!-- Indicador de click -->
+      <div class="jugg-click-hint">¡TÓCAME!</div>
+    </div>
+    <!-- Burbuja de diálogo -->
+    <div id="juggBubble" style="display:none;">
+      <div id="juggText"></div>
+      <button class="jugg-close" onclick="event.stopPropagation(); window.juggCloseBubble && window.juggCloseBubble()">✕</button>
+      <div class="jugg-bubble-tail"></div>
+    </div>
+    <!-- Label nombre -->
+    <div class="jugg-name-tag">YURNERO</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LANDING SCREEN
+  ══════════════════════════════════════════ -->
+  <div class="screen active" id="landingScreen">
+    <div class="landing-wrapper">
+      <div class="landing-header">
+        <div class="landing-logo">
+          <div class="logo-glyph">◈</div>
+          <div>
+            <h1>KVN.UPLA</h1>
+            <div class="logo-sub">UNIVERSIDAD PERUANA LOS ANDES</div>
+          </div>
+        </div>
+        <button class="btn-enter-login" onclick="goToLogin()">
+          <span class="btn-el-icon">⚡</span>
+          <span>LOGIN</span>
+        </button>
+      </div>
+
+      <!-- INFO PERSONAL -->
+      <div class="student-info-card">
+        <div class="student-avatar" id="landingAvatarWrap">
+          <div class="avatar-img-wrapper" id="landingAvatar">
+            <img id="landingAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            <div class="avatar-placeholder" id="landingAvatarPlaceholder">
+              <span>KG</span>
+            </div>
+          </div>
+          <div class="avatar-ring"></div>
+        </div>
+        <div class="student-details">
+          <h2 class="student-name">Kevin Yeison Ccoñas Gomez</h2>
+          <div class="student-meta">
+            <div class="meta-item"><span class="meta-icon">👤</span> 20 años</div>
+            <div class="meta-item"><span class="meta-icon">🎂</span> 14 Ago 2005</div>
+            <div class="meta-item"><span class="meta-icon">📚</span> 5to Ciclo</div>
+          </div>
+          <div class="student-career">
+            <div class="career-icon">💻</div>
+            <div>
+              <div class="career-faculty">Facultad de Ingeniería</div>
+              <div class="career-name">Ingeniería de Sistemas y Computación</div>
+              <div class="career-university">Universidad Peruana Los Andes</div>
+            </div>
+          </div>
+          <div class="student-vision">
+            <p>🚀 Futuro profesional en desarrollo de software, sistemas inteligentes y tecnologías emergentes. Comprometido con la innovación tecnológica y el aprendizaje continuo.</p>
+          </div>
+          <div class="student-badges">
+            <span class="badge-item">🏫 UPLA</span>
+            <span class="badge-item">💡 Sistemas</span>
+            <span class="badge-item">⚡ Dev</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-tagline">PORTAL DE TRABAJOS ACADÉMICOS</div>
+
+      <div class="landing-units" id="landingUnits">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="landing-footer">
+        UPLA © 2025 — INGENIERÍA DE SISTEMAS · Kevin Yeison Ccoñas Gomez
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PUBLIC MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="publicModal">
+    <div class="modal-box" id="publicModalBox">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-dome-mini" id="pubModalDome">I</div>
+          <div>
+            <div class="modal-title" id="pubModalTitle">UNIDAD I</div>
+            <div class="modal-sub" id="pubModalSub">PRIMERA UNIDAD</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closePublicModal()">✕</button>
+      </div>
+      <div class="week-tabs" id="pubWeekTabs">
+        <div class="week-tab active" onclick="switchPublicWeek(1)">SEMANA 1</div>
+        <div class="week-tab" onclick="switchPublicWeek(2)">SEMANA 2</div>
+        <div class="week-tab" onclick="switchPublicWeek(3)">SEMANA 3</div>
+        <div class="week-tab" onclick="switchPublicWeek(4)">SEMANA 4</div>
+      </div>
+      <div class="modal-body" id="pubModalBody"></div>
+      <div class="pub-modal-footer">
+        <button class="btn-arcana-sm" onclick="goToLogin()">🔐 Iniciar Sesión para Gestionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FILE PREVIEW MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="filePreviewModal" style="display:none;z-index:5000;">
+    <div class="modal-box file-preview-box">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span id="previewFileIcon" style="font-size:1.4rem;">📄</span>
+          <div>
+            <div class="modal-title" id="previewFileName" style="font-size:.82rem;">ARCHIVO</div>
+            <div class="modal-sub" id="previewFileMeta"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-fa btn-dl" id="previewDownloadBtn" onclick="previewDownload()">⬇ DESCARGAR</button>
+          <button class="modal-close" onclick="closeFilePreview()">✕</button>
+        </div>
+      </div>
+      <div class="preview-content" id="previewContent">
+        <div class="preview-loading">Cargando vista previa...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LOGIN SCREEN
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="loginScreen">
+    <div class="login-wrapper">
+      <div class="arcana-logo">
+        <h1>KVN.UPLA</h1>
+        <div class="subtitle">ACCESO AL SISTEMA</div>
+      </div>
+
+      <div class="fire-container">
+        <div class="fire-border">
+          <div class="login-box">
+            <div class="tab-selector">
+              <button class="tab-btn active" onclick="switchAuthTab('login')">INGRESAR</button>
+              <button class="tab-btn" onclick="switchAuthTab('register')">REGISTRAR</button>
+            </div>
+
+            <div id="loginForm">
+              <div class="form-group">
+                <label>USUARIO</label>
+                <input type="text" id="loginUser" placeholder="Ingresa tu usuario">
+              </div>
+              <div class="form-group">
+                <label>CONTRASEÑA</label>
+                <input type="password" id="loginPass" placeholder="Ingresa tu contraseña">
+              </div>
+              <div class="error-msg" id="loginError"></div>
+              <button class="btn-arcana" onclick="handleLogin()">⚡ ACCEDER</button>
+            </div>
+
+            <div id="registerForm" style="display:none;">
+              <div class="form-group">
+                <label>USUARIO</label>
+                <input type="text" id="regUser" placeholder="Elige un usuario">
+              </div>
+              <div class="form-group">
+                <label>CONTRASEÑA</label>
+                <input type="password" id="regPass" placeholder="Crea una contraseña">
+              </div>
+              <div class="form-group">
+                <label>CONFIRMAR CONTRASEÑA</label>
+                <input type="password" id="regPass2" placeholder="Repite tu contraseña">
+              </div>
+              <div class="form-group">
+                <label>ROL</label>
+                <div class="role-cards">
+                  <div class="role-card selected-viewer" onclick="selectRole('viewer')">
+                    <div class="rc-icon">👁</div>
+                    <div class="rc-name">VISUALIZADOR</div>
+                    <div class="rc-desc">Solo lectura</div>
+                  </div>
+                  <div class="role-card" onclick="selectRole('admin_attempt')">
+                    <div class="rc-icon">♛</div>
+                    <div class="rc-name">ADMIN</div>
+                    <div class="rc-desc">Reservado</div>
+                  </div>
+                </div>
+              </div>
+              <!-- FOTO DE PERFIL AL REGISTRAR -->
+              <div class="form-group">
+                <label>FOTO DE PERFIL <span style="opacity:.5;font-size:.7rem;">(opcional)</span></label>
+                <div class="avatar-upload-zone" id="avatarUploadZone" onclick="document.getElementById('avatarFileInput').click()">
+                  <img id="avatarPreviewImg" src="" alt="" style="display:none;width:60px;height:60px;border-radius:50%;object-fit:cover;">
+                  <div id="avatarUploadHint">
+                    <div style="font-size:2rem;opacity:.4;">📷</div>
+                    <div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;">Clic para subir foto</div>
+                  </div>
+                  <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="previewAvatarUpload(this)">
+                </div>
+              </div>
+              <div class="error-msg" id="registerError"></div>
+              <button class="btn-arcana" onclick="handleRegister()">✦ CREAR CUENTA</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-back-landing" onclick="goToLanding()">← Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MAIN SCREEN
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="mainScreen">
+    <div class="main-header">
+      <div class="header-logo">KVN.UPLA</div>
+      <div class="header-right">
+        <div class="sync-indicator" id="syncIndicator" style="display:none;"></div>
+        <button class="btn-hdr btn-hdr-share" id="btnShare" onclick="openShareModal()" style="display:none;">📤 COMPARTIR</button>
+        <button class="btn-hdr btn-hdr-sync" id="btnSync" onclick="doViewerSync()" style="display:none;">🔄 SYNC</button>
+        <button class="btn-hdr btn-hdr-import" id="btnImport" style="display:none;">📥 IMPORTAR</button>
+        <!-- User badge con foto -->
+        <div class="user-badge" id="userBadge" style="display:flex;align-items:center;gap:7px;">
+          <div class="header-avatar-wrap" id="headerAvatarWrap" style="display:none;">
+            <img id="headerAvatarImg" src="" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--arcana-blue);">
+          </div>
+          <span id="headerCrown"></span>
+          <span id="headerUsername">USUARIO</span>
+        </div>
+        <button class="btn-hdr btn-logout" onclick="handleLogout()">🚪 SALIR</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <h2 class="section-title">MIS UNIDADES</h2>
+      <div class="units-grid" id="unitsGrid"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UNIT MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="unitModal">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-dome-mini" id="modalDomeMini">I</div>
+          <div>
+            <div class="modal-title" id="modalTitle">UNIDAD I</div>
+            <div class="modal-sub" id="modalSub">PRIMERA UNIDAD</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="week-tabs" id="weekTabs">
+        <div class="week-tab active" onclick="switchWeek(1)">SEMANA 1</div>
+        <div class="week-tab" onclick="switchWeek(2)">SEMANA 2</div>
+        <div class="week-tab" onclick="switchWeek(3)">SEMANA 3</div>
+        <div class="week-tab" onclick="switchWeek(4)">SEMANA 4</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EDIT FILE OVERLAY
+  ══════════════════════════════════════════ -->
+  <div class="edit-overlay" id="editOverlay">
+    <div class="edit-box">
+      <h3>✎ EDITAR ARCHIVO</h3>
+      <input type="text" id="editFileName" placeholder="Nombre del archivo">
+      <textarea id="editFileDesc" placeholder="Descripción (opcional)"></textarea>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="saveEdit()">💾 GUARDAR</button>
+        <button class="btn-cancel" onclick="closeEdit()">✕ CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SHARE OVERLAY
+  ══════════════════════════════════════════ -->
+  <div class="share-overlay" id="shareOverlay">
+    <div class="share-box">
+      <h3>📤 COMPARTIR SISTEMA</h3>
+      <p>Exporta una copia de seguridad de todos los archivos y metadatos del sistema.</p>
+      <div class="share-section s-admin">
+        <h4>♛ PARA ADMINISTRADORES</h4>
+        <div class="share-steps">
+          <strong>1.</strong> Descarga el backup JSON<br>
+          <strong>2.</strong> Compártelo con otros usuarios<br>
+          <strong>3.</strong> Ellos pueden importarlo desde su panel
+        </div>
+      </div>
+      <div class="share-section s-viewer">
+        <h4>👁 PARA VISUALIZADORES</h4>
+        <div class="share-steps">
+          Usa el botón <strong>SYNC</strong> en el header para actualizar tus archivos desde la base de datos.
+        </div>
+      </div>
+      <div class="status-line" id="shareStatusLine"></div>
+      <button class="btn-push" onclick="exportJsonDownload()">📦 DESCARGAR BACKUP</button>
+      <button class="btn-close-share" onclick="closeShareModal()">✕ CERRAR</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- PROFILE PHOTO CHANGE BUTTON (visible when logged in) -->
+  <div id="changeAvatarBtn" style="display:none;position:fixed;bottom:90px;right:20px;z-index:999;">
+    <button class="btn-change-avatar" onclick="openAvatarChangeModal()" title="Cambiar foto de perfil">📷</button>
+  </div>
+
+  <!-- AVATAR CHANGE MODAL -->
+  <div class="edit-overlay" id="avatarChangeOverlay" style="display:none;">
+    <div class="edit-box" style="max-width:360px;">
+      <h3>📷 CAMBIAR FOTO DE PERFIL</h3>
+      <div class="avatar-upload-zone" id="avatarChangeZone" style="margin-bottom:12px;" onclick="document.getElementById('avatarChangeFileInput').click()">
+        <img id="avatarChangePrevImg" src="" alt="" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto;">
+        <div id="avatarChangeHint">
+          <div style="font-size:2.2rem;opacity:.4;">📷</div>
+          <div style="font-size:.73rem;color:var(--text-dim);margin-top:6px;">Clic para seleccionar imagen</div>
+        </div>
+        <input type="file" id="avatarChangeFileInput" accept="image/*" style="display:none;" onchange="previewAvatarChange(this)">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="saveAvatarChange()">💾 GUARDAR FOTO</button>
+        <button class="btn-cancel" onclick="closeAvatarChangeModal()">✕ CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="jugg-guide.js"></script>
+</body>
+</html>
