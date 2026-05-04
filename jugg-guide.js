@@ -3,7 +3,7 @@
 // Mini guía interactiva estilo Dota 2
 // ════════════════════════════════════════════
 
-const JuggGuide = (() => {
+onst JuggGuide = (() => {
 
   // ── Líneas por contexto ──────────────────
   const LINES = {
