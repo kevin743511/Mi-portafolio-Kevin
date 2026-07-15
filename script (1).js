@@ -335,16 +335,17 @@ function renderPublicWeekContent() {
     </div>`;
   } else {
     files.forEach(f => {
+      const isLink = !f.storage_path;
       const ext = (f.name.split('.').pop() || '').toLowerCase();
       html += `
-        <div class="file-item" onclick="openFilePreview({id:'${f.id}',name:'${esc(f.name).replace(/'/g,"\\'")}',url:'${f.url}',size:'${f.size}',date:'${f.date}'})">
-          <div class="file-icon">${getFileIcon(ext)}</div>
+        <div class="file-item">
+          <div class="file-icon">${isLink ? '🔗' : getFileIcon(ext)}</div>
           <div class="file-info">
             <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
             <div class="file-meta">${f.size} · ${f.date}${f.desc ? ' · <em>' + esc(f.desc) + '</em>' : ''}</div>
           </div>
-          <div class="file-actions" onclick="event.stopPropagation()">
-            <button class="btn-fa btn-dl" onclick="downloadPublicFile('${f.id}')">⬇ DL</button>
+          <div class="file-actions">
+            <button class="btn-fa btn-dl" onclick="downloadPublicFile('${f.id}')">${isLink ? '↗ ABRIR' : '⬇ DL'}</button>
           </div>
         </div>`;
     });
@@ -357,6 +358,12 @@ function downloadPublicFile(id) {
   const key = `u${publicCurrentUnit}_w${publicCurrentWeek}`;
   const f = (state.files[key] || []).find(x => x.id === id);
   if (!f || !f.url) return;
+  if (!f.storage_path) {
+    window.open(f.url, '_blank');
+    soundClick();
+    showToast('↗ Abriendo: ' + f.name);
+    return;
+  }
   const a = document.createElement('a');
   a.href = f.url; a.download = f.name; a.target = '_blank'; a.click();
   soundClick();
@@ -458,8 +465,6 @@ function handleLogout() {
   localStorage.removeItem('arcana_user');
   localStorage.removeItem('arcana_role');
   state.currentUser = null; state.isAdmin = false; state.isViewer = false; state.files = {};
-  const changeBtn = document.getElementById('changeAvatarBtn');
-  if (changeBtn) changeBtn.style.display = 'none';
   showTransition('CERRANDO SESIÓN...', () => {
     document.getElementById('mainScreen').classList.remove('active');
     document.getElementById('landingScreen').classList.add('active');
@@ -536,13 +541,6 @@ async function enterMain() {
   await loadAllFiles();
   renderUnits();
   
-  // Cargar avatar guardado
-  loadAvatarForUser(state.currentUser);
-  
-  // Mostrar botón de cambiar avatar
-  const changeBtn = document.getElementById('changeAvatarBtn');
-  if (changeBtn) changeBtn.style.display = 'block';
-  
   // Iniciar auto-refresh para viewers
   if (state.isViewer) {
     startAutoRefresh();
@@ -593,17 +591,10 @@ function renderWeekContent() {
         <p>ARRASTRA ARCHIVOS O HAZ CLIC PARA SUBIR</p>
         <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
       </div>
+      <button class="btn-inject" type="button" onclick="openLinkModal()">🔗 AGREGAR LINK</button>
       <div class="progress-wrap" id="progressWrap">
         <div class="progress-lbl" id="progressLbl">SUBIENDO...</div>
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      </div>
-      <div class="url-upload-section">
-        <span class="url-upload-label">🔗 AGREGAR POR URL</span>
-        <div class="url-upload-row">
-          <input type="text" class="url-input" id="urlFileName" placeholder="Nombre del archivo (opcional)">
-          <input type="text" class="url-input" id="urlFileInput" placeholder="https://...">
-          <button class="btn-url-add" onclick="addFileByUrl()">+ URL</button>
-        </div>
       </div>`;
   }
 
@@ -615,16 +606,17 @@ function renderWeekContent() {
     </div>`;
   } else {
     files.forEach(f => {
+      const isLink = !f.storage_path;
       const ext = (f.name.split('.').pop() || '').toLowerCase();
       html += `
-        <div class="file-item" onclick="openFilePreview({id:'${f.id}',name:'${esc(f.name).replace(/'/g,"\\'")}',url:'${f.url}',size:'${f.size}',date:'${f.date}'})">
-          <div class="file-icon">${getFileIcon(ext)}</div>
+        <div class="file-item">
+          <div class="file-icon">${isLink ? '🔗' : getFileIcon(ext)}</div>
           <div class="file-info">
             <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
             <div class="file-meta">${f.size} · ${f.date}${f.desc ? ' · <em>' + esc(f.desc) + '</em>' : ''}</div>
           </div>
-          <div class="file-actions" onclick="event.stopPropagation()">
-            <button class="btn-fa btn-dl" onclick="downloadFile('${f.id}')">⬇ DL</button>
+          <div class="file-actions">
+            <button class="btn-fa btn-dl" onclick="downloadFile('${f.id}')">${isLink ? '↗ ABRIR' : '⬇ DL'}</button>
             ${state.isAdmin ? `
               <button class="btn-fa btn-edit" onclick="editFile('${f.id}')">✎ EDIT</button>
               <button class="btn-fa btn-del" onclick="deleteFile('${f.id}')">✕ DEL</button>
@@ -749,12 +741,82 @@ async function handleFiles(fileList) {
 }
 
 // ════════════════════════════════════════════
+// AGREGAR LINK (admin) — en vez de subir archivo
+// ════════════════════════════════════════════
+function openLinkModal() {
+  if (!state.isAdmin) return;
+  soundClick();
+  document.getElementById('linkName').value = '';
+  document.getElementById('linkUrl').value = '';
+  document.getElementById('linkDesc').value = '';
+  document.getElementById('linkOverlay').classList.add('open');
+}
+
+function closeLinkModal() {
+  document.getElementById('linkOverlay').classList.remove('open');
+}
+
+async function saveLink() {
+  if (!state.isAdmin) return;
+  const name = document.getElementById('linkName').value.trim();
+  let url = document.getElementById('linkUrl').value.trim();
+  const desc = document.getElementById('linkDesc').value.trim();
+
+  if (!name) { soundError(); showToast('✕ El nombre no puede estar vacío', 'te'); return; }
+  if (!url) { soundError(); showToast('✕ El link no puede estar vacío', 'te'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  console.log('🔗 Guardando link:', name, url);
+
+  const meta = {
+    unidad: currentUnit,
+    semana: currentWeek,
+    nombre: name,
+    file_url: url,
+    storage_path: null,
+    size: 'LINK',
+    upload_date: new Date().toLocaleDateString('es-ES'),
+    texto_de_descripción: desc
+  };
+
+  try {
+    const { data, error } = await sb.from('archivos').insert(meta).select().single();
+
+    if (error) {
+      console.error('❌ Error guardando link:', error);
+      soundError();
+      showToast('✕ Error guardando link: ' + error.message, 'te');
+    } else {
+      console.log('✅ Link guardado:', data);
+      soundSuccess();
+      showToast('✓ Link agregado');
+      closeLinkModal();
+
+      await loadAllFiles();
+      renderWeekContent();
+      renderUnits();
+      renderLandingUnits();
+    }
+  } catch (e) {
+    console.error('❌ Exception guardando link:', e);
+    soundError();
+    showToast('✕ Error de conexión', 'te');
+  }
+}
+
+// ════════════════════════════════════════════
 // FILE ACTIONS
 // ════════════════════════════════════════════
 function downloadFile(id) {
   const key = `u${currentUnit}_w${currentWeek}`;
   const f = (state.files[key] || []).find(x => x.id === id);
   if (!f || !f.url) return;
+  if (!f.storage_path) {
+    window.open(f.url, '_blank');
+    soundClick();
+    showToast('↗ Abriendo: ' + f.name);
+    return;
+  }
   const a = document.createElement('a');
   a.href = f.url; a.download = f.name; a.target = '_blank'; a.click();
   soundClick();
@@ -824,9 +886,11 @@ async function deleteFile(id) {
   if (!f) return;
 
   try {
-    // Eliminar de storage
-    const { error: storageErr } = await sb.storage.from('arcana-files').remove([f.storage_path]);
-    if (storageErr) console.warn('⚠️ Error eliminando storage:', storageErr);
+    // Eliminar de storage (solo si es un archivo real, no un link)
+    if (f.storage_path) {
+      const { error: storageErr } = await sb.storage.from('arcana-files').remove([f.storage_path]);
+      if (storageErr) console.warn('⚠️ Error eliminando storage:', storageErr);
+    }
 
     // Eliminar de base de datos
     const { error: dbErr } = await sb.from('archivos').delete().eq('id', id);
@@ -965,220 +1029,6 @@ function debugState() {
 }
 
 // ════════════════════════════════════════════
-// FILE PREVIEW MODAL
-// ════════════════════════════════════════════
-let previewCurrentFile = null;
-
-function openFilePreview(file) {
-  previewCurrentFile = file;
-  const modal = document.getElementById('filePreviewModal');
-  const content = document.getElementById('previewContent');
-  const icon = document.getElementById('previewFileIcon');
-  const name = document.getElementById('previewFileName');
-  const meta = document.getElementById('previewFileMeta');
-  
-  modal.style.display = 'flex';
-  name.textContent = file.name;
-  meta.textContent = file.size + ' · ' + file.date;
-  
-  const ext = (file.name.split('.').pop() || '').toLowerCase();
-  icon.textContent = getFileIcon(ext);
-  content.innerHTML = '<div class="preview-loading">⟳ CARGANDO VISTA PREVIA...</div>';
-  
-  soundOpen();
-  
-  const imageExts = ['jpg','jpeg','png','gif','webp','svg','bmp'];
-  const videoExts = ['mp4','webm','ogg','mov'];
-  const audioExts = ['mp3','wav','ogg','flac','aac'];
-  const pdfExt = ['pdf'];
-  
-  setTimeout(() => {
-    if (imageExts.includes(ext)) {
-      content.innerHTML = `<img class="preview-image" src="${file.url}" alt="${esc(file.name)}" onerror="this.style.display='none';document.getElementById('previewContent').innerHTML='<div class=\\'preview-no-preview\\'><div class=\\'pnp-icon\\'>🖼</div><div class=\\'pnp-text\\'>NO SE PUEDE MOSTRAR LA IMAGEN</div></div>'">`;
-    } else if (pdfExt.includes(ext)) {
-      content.innerHTML = `<iframe class="preview-iframe" src="${file.url}#toolbar=0" title="${esc(file.name)}"></iframe>`;
-    } else if (videoExts.includes(ext)) {
-      content.innerHTML = `<video class="preview-video" controls src="${file.url}"></video>`;
-    } else if (audioExts.includes(ext)) {
-      content.innerHTML = `<div style="width:100%;text-align:center;padding:30px;"><div style="font-size:3rem;margin-bottom:16px;">🎵</div><audio controls src="${file.url}" style="width:90%;max-width:400px;"></audio></div>`;
-    } else if (['html','htm'].includes(ext)) {
-      content.innerHTML = `<iframe class="preview-iframe" src="${file.url}" title="${esc(file.name)}" sandbox="allow-scripts"></iframe>`;
-    } else {
-      content.innerHTML = `<div class="preview-no-preview">
-        <div class="pnp-icon">${getFileIcon(ext)}</div>
-        <div class="pnp-text">VISTA PREVIA NO DISPONIBLE</div>
-        <div style="font-size:.68rem;color:var(--text-dim);letter-spacing:1px;margin-bottom:14px;">Descarga el archivo para verlo</div>
-        <button class="btn-fa btn-dl" onclick="previewDownload()" style="padding:10px 24px;font-size:.78rem;">⬇ DESCARGAR ARCHIVO</button>
-      </div>`;
-    }
-  }, 300);
-}
-
-function closeFilePreview() {
-  document.getElementById('filePreviewModal').style.display = 'none';
-  previewCurrentFile = null;
-  // Limpiar para liberar memoria
-  document.getElementById('previewContent').innerHTML = '';
-}
-
-function previewDownload() {
-  if (!previewCurrentFile) return;
-  const a = document.createElement('a');
-  a.href = previewCurrentFile.url;
-  a.download = previewCurrentFile.name;
-  a.target = '_blank';
-  a.click();
-  soundClick();
-  showToast('⬇ Descargando: ' + previewCurrentFile.name);
-}
-
-// Cerrar preview con click fuera
-document.addEventListener('click', (e) => {
-  const modal = document.getElementById('filePreviewModal');
-  if (e.target === modal) closeFilePreview();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.getElementById('filePreviewModal').style.display === 'flex') {
-    closeFilePreview();
-  }
-});
-
-// ════════════════════════════════════════════
-// URL UPLOAD (agregar archivo por URL)
-// ════════════════════════════════════════════
-async function addFileByUrl() {
-  if (!state.isAdmin) return;
-  const urlInput = document.getElementById('urlFileInput');
-  const nameInput = document.getElementById('urlFileName');
-  if (!urlInput || !urlInput.value.trim()) {
-    showToast('✕ Ingresa una URL válida', 'te');
-    soundError();
-    return;
-  }
-  const url = urlInput.value.trim();
-  const customName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : url.split('/').pop().split('?')[0] || 'archivo';
-  
-  const meta = {
-    unidad: currentUnit,
-    semana: currentWeek,
-    nombre: customName,
-    file_url: url,
-    storage_path: '',
-    size: '—',
-    upload_date: new Date().toLocaleDateString('es-ES'),
-    texto_de_descripción: 'Archivo por URL'
-  };
-  
-  try {
-    const { error } = await sb.from('archivos').insert(meta);
-    if (error) {
-      soundError();
-      showToast('✕ Error: ' + error.message, 'te');
-    } else {
-      soundSuccess();
-      showToast('✓ Archivo URL agregado');
-      urlInput.value = '';
-      if (nameInput) nameInput.value = '';
-      await loadAllFiles();
-      renderWeekContent();
-      renderUnits();
-      renderLandingUnits();
-    }
-  } catch(e) {
-    soundError();
-    showToast('✕ Error de conexión', 'te');
-  }
-}
-
-// ════════════════════════════════════════════
-// AVATAR / FOTO DE PERFIL
-// ════════════════════════════════════════════
-let pendingAvatarBase64 = null;
-
-function previewAvatarUpload(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    const img = document.getElementById('avatarPreviewImg');
-    const hint = document.getElementById('avatarUploadHint');
-    if (img) { img.src = dataUrl; img.style.display = 'block'; }
-    if (hint) hint.style.display = 'none';
-    pendingAvatarBase64 = dataUrl;
-  };
-  reader.readAsDataURL(file);
-}
-
-function previewAvatarChange(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    const img = document.getElementById('avatarChangePrevImg');
-    const hint = document.getElementById('avatarChangeHint');
-    if (img) { img.src = dataUrl; img.style.display = 'block'; }
-    if (hint) hint.style.display = 'none';
-    pendingAvatarBase64 = dataUrl;
-  };
-  reader.readAsDataURL(file);
-}
-
-function openAvatarChangeModal() {
-  const ov = document.getElementById('avatarChangeOverlay');
-  if (!ov) return;
-  ov.style.display = 'flex';
-  // Mostrar avatar actual si existe
-  const saved = localStorage.getItem('arcana_avatar_' + state.currentUser);
-  if (saved) {
-    const img = document.getElementById('avatarChangePrevImg');
-    const hint = document.getElementById('avatarChangeHint');
-    if (img) { img.src = saved; img.style.display = 'block'; }
-    if (hint) hint.style.display = 'none';
-    pendingAvatarBase64 = saved;
-  }
-}
-
-function closeAvatarChangeModal() {
-  const ov = document.getElementById('avatarChangeOverlay');
-  if (ov) ov.style.display = 'none';
-  pendingAvatarBase64 = null;
-}
-
-function saveAvatarChange() {
-  if (!pendingAvatarBase64 || !state.currentUser) return;
-  localStorage.setItem('arcana_avatar_' + state.currentUser, pendingAvatarBase64);
-  applyAvatarToUI(pendingAvatarBase64);
-  closeAvatarChangeModal();
-  showToast('✓ Foto de perfil actualizada');
-  soundSuccess();
-}
-
-function applyAvatarToUI(dataUrl) {
-  // Header avatar
-  const headerWrap = document.getElementById('headerAvatarWrap');
-  const headerImg = document.getElementById('headerAvatarImg');
-  if (headerImg && dataUrl) {
-    headerImg.src = dataUrl;
-    if (headerWrap) headerWrap.style.display = 'block';
-  }
-  // Landing avatar si es admin
-  const landingImg = document.getElementById('landingAvatarImg');
-  const landingPlaceholder = document.getElementById('landingAvatarPlaceholder');
-  if (landingImg && dataUrl && state.isAdmin) {
-    landingImg.src = dataUrl;
-    landingImg.style.display = 'block';
-    if (landingPlaceholder) landingPlaceholder.style.display = 'none';
-  }
-}
-
-function loadAvatarForUser(username) {
-  const saved = localStorage.getItem('arcana_avatar_' + username);
-  if (saved) applyAvatarToUI(saved);
-}
-
-// ════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════
 async function init() {
@@ -1242,6 +1092,9 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('editOverlay').classList.contains('open')) {
       closeEdit();
     }
+    if (document.getElementById('linkOverlay').classList.contains('open')) {
+      closeLinkModal();
+    }
     if (document.getElementById('shareOverlay').classList.contains('open')) {
       closeShareModal();
     }
@@ -1289,6 +1142,10 @@ document.getElementById('publicModal').addEventListener('click', e => {
 
 document.getElementById('editOverlay').addEventListener('click', e => {
   if (e.target.id === 'editOverlay') closeEdit();
+});
+
+document.getElementById('linkOverlay').addEventListener('click', e => {
+  if (e.target.id === 'linkOverlay') closeLinkModal();
 });
 
 document.getElementById('shareOverlay').addEventListener('click', e => {
