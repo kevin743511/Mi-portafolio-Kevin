@@ -773,7 +773,7 @@ async function saveLink() {
     semana: currentWeek,
     nombre: name,
     file_url: url,
-    storage_path: null,
+    storage_path: '',
     size: 'LINK',
     upload_date: new Date().toLocaleDateString('es-ES'),
     texto_de_descripción: desc
